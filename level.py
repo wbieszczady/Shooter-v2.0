@@ -7,48 +7,46 @@ from player import Player
 from gui import Gui, Debug
 from threading import Thread
 from animation import Animation
+from utilities import center_position, NavigationButton
 import cProfile
 
 
 class MainMenu:
     def __init__(self, settings):
 
+        #common
         self.screen = pygame.display.get_surface()
-        self.imageNormal = pygame.image.load('assets/menu/playButton.png').convert_alpha()
-        self.imageHover = pygame.image.load('assets/menu/playButton_hover.png').convert_alpha()
-        self.rect = self.imageNormal.get_rect()
-
         self.settings = settings
 
-        self.rect.x = 500
-        self.rect.y = 500
+        #singleplayer button
+        self.image_singlePlayerNormal = pygame.image.load('assets/menu/playButton.png').convert_alpha()
+        self.image_singlePlayerHover = pygame.image.load('assets/menu/playButton_hover.png').convert_alpha()
+        self.rect_singlePlayer = self.image_singlePlayerNormal.get_rect()
+        self.rect_singlePlayerPos = center_position(self.rect_singlePlayer)
 
-        self.isClicked = False
+        #title
+        self.image_title = pygame.image.load('assets/menu/title.png').convert_alpha()
+        self.rect_title = self.image_title.get_rect()
+        self.rect_titlePos = center_position(self.rect_title, 0, -400)
 
-        self.gui = Gui()
+        #gui (extension)
+        self.gui = Gui(settings)
 
     def run(self):
 
-        pos = pygame.mouse.get_pos()
+        self.image_singlePlayerFinal = NavigationButton(self.rect_singlePlayer, self.image_singlePlayerNormal, self.image_singlePlayerHover, self.settings, False)
 
-        if self.rect.collidepoint(pos):
-            self.image = self.imageHover
-            if pygame.mouse.get_pressed()[0] == 1 and self.isClicked == False:
-                self.isClicked = True
-                self.settings.set_MAIN_MENU(False)
-            else:
-                self.isClicked = False
-        else:
-            self.image = self.imageNormal
-
-        self.screen.blit(self.image, (self.rect.x, self.rect.y))
+        self.screen.blit(self.image_singlePlayerFinal, self.rect_singlePlayerPos)
+        self.screen.blit(self.image_title, self.rect_titlePos)
 
         self.gui.showMouse()
 
 
 
 class Level:
-    def __init__(self):
+    def __init__(self, settings):
+
+        self.settings = settings
 
         # get the display surface
         self.screen = pygame.display.get_surface()
@@ -62,8 +60,9 @@ class Level:
 
         #create map
         self.create_map()
-        self.gui = Gui()
-        self.debug = Debug()
+
+        self.gui = Gui(settings)
+        self.debug = Debug(self.group_players)
 
     def create_map(self):
         for row_index, row in enumerate(WORLD_MAP):
@@ -115,6 +114,14 @@ class Level:
         #drawing gui
 
         self.gui.showMouse()
+
+        key = pygame.key.get_pressed()
+
+        if key[pygame.K_ESCAPE]:
+            self.gui.gameMenu()
+
+
+        #drawing debug mode
 
         if DEBUG:
             self.debug.debugMode()

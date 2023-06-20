@@ -143,8 +143,5 @@ class Player(pygame.sprite.Sprite):
         self.move()
         self.drawHead()
         self.shoot()
-        print(self.isMovingForward)
-
-        self.outline()
 
         self.animate()

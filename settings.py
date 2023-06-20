@@ -3,7 +3,7 @@ HEIGHT = 1280
 FPS = 60
 TILESIZE = 64
 
-DEBUG = True
+DEBUG = False
 SHOW_CURSOR = False
 
 WORLD_MAP = [
@@ -32,10 +32,16 @@ WORLD_MAP = [
 class DynamicSettings:
     def __init__(self):
         self.MAIN_MENU = True
+        self.GAME_MENU = False
 
     def get_MAIN_MENU(self):
         return self.MAIN_MENU
 
+    def get_GAME_MENU(self):
+        return self.GAME_MENU
+
     def set_MAIN_MENU(self, bool):
         self.MAIN_MENU = bool
-        print(f'Changed to: {self.MAIN_MENU}')
+
+    def set_GAME_MENU(self, bool):
+        self.GAME_MENU = bool

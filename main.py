@@ -2,7 +2,6 @@ import pygame, sys
 from settings import *
 from level import *
 
-
 class Game:
     def __init__(self):
         pygame.init()
@@ -15,7 +14,7 @@ class Game:
 
         self.settings = DynamicSettings()
 
-        self.level = Level()
+        self.level = Level(self.settings)
         self.mainMenu = MainMenu(self.settings)
 
     def select_state(self):
