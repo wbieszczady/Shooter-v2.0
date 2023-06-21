@@ -1,28 +1,21 @@
 import pygame, sys
 from settings import *
-from level import *
+from singleplayer import MainMenu, Singleplayer
+from utilities import *
 
 class Game:
     def __init__(self):
         pygame.init()
-        pygame.display.set_caption('Shooter v3')
+        pygame.display.set_caption('Shooter v2')
 
         pygame.mouse.set_visible(SHOW_CURSOR)
 
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-        self.settings = DynamicSettings()
-
-        self.level = Level(self.settings)
-        self.mainMenu = MainMenu(self.settings)
-
-    def select_state(self):
-        if self.settings.get_MAIN_MENU():
-            self.mainMenu.run()
-        else:
-            self.level.run()
-
+    def initialize(self):
+        self.mainMenu = MainMenu()
+        self.singleplayer = Singleplayer()
 
     def run(self):
         while True:
@@ -31,15 +24,30 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
+                if event.type == backToMenu:
+                    del self.singleplayer
+                    self.singleplayer = Singleplayer()
+
+            # main loop
+
             self.screen.fill('black')
 
-            self.select_state()
+            if LEVELS['mainMenu']:
+                self.mainMenu.run()
+
+            if LEVELS['singleplayer']:
+                self.singleplayer.run()
+
 
             pygame.display.update()
             #print(self.clock.get_fps())
 
             self.clock.tick(FPS)
 
+
+
+
 if __name__ == '__main__':
     game = Game()
+    game.initialize()
     game.run()

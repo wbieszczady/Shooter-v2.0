@@ -1,10 +1,17 @@
 WIDTH = 1280
 HEIGHT = 1280
+# WIDTH = 800
+# HEIGHT = 800
 FPS = 60
 TILESIZE = 64
 
 DEBUG = False
 SHOW_CURSOR = False
+
+LEVELS = {
+    'singleplayer': False,
+    'mainMenu': True
+}
 
 WORLD_MAP = [
 ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
@@ -28,20 +35,3 @@ WORLD_MAP = [
 ['b', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'b'],
 ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
 ]
-
-class DynamicSettings:
-    def __init__(self):
-        self.MAIN_MENU = True
-        self.GAME_MENU = False
-
-    def get_MAIN_MENU(self):
-        return self.MAIN_MENU
-
-    def get_GAME_MENU(self):
-        return self.GAME_MENU
-
-    def set_MAIN_MENU(self, bool):
-        self.MAIN_MENU = bool
-
-    def set_GAME_MENU(self, bool):
-        self.GAME_MENU = bool
