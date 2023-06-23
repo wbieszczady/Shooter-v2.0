@@ -16,6 +16,7 @@ class Gui:
         self.surface.fill((0, 0, 0, 190))
 
         self.image_bMenu = pygame.image.load('assets/menu/backToMenu.png').convert_alpha()
+        self.image_bMenu_hover = pygame.image.load('assets/menu/backToMenu_hover.png').convert_alpha()
         self.rect_bMenu = self.image_bMenu.get_rect()
         self.rect_bMenuPos = center_position(self.rect_bMenu, -400, -550)
 
@@ -28,7 +29,7 @@ class Gui:
         self.screen.blit(self.image_cursor, (self.mouse_pos[0] - 32, self.mouse_pos[1] - 32))
 
     def gameMenu(self):
-        self.image_bMenuFinal = NavigationButton(self.rect_bMenu, self.image_bMenu, self.image_bMenu, True)
+        self.image_bMenuFinal = NavigationButton(self.rect_bMenu, self.image_bMenu, self.image_bMenu_hover, True)
         self.surface.blit(self.image_bMenuFinal, self.rect_bMenuPos)
         self.screen.blit(self.surface, (0, 0))
 
