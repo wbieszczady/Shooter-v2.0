@@ -10,38 +10,6 @@ from animation import Animation
 from utilities import center_position, NavigationButton
 import cProfile
 
-
-class MainMenu:
-    def __init__(self):
-
-        #common
-        self.screen = pygame.display.get_surface()
-
-        #singleplayer button
-        self.image_singlePlayerNormal = pygame.image.load('assets/menu/playButton.png').convert_alpha()
-        self.image_singlePlayerHover = pygame.image.load('assets/menu/playButton_hover.png').convert_alpha()
-        self.rect_singlePlayer = self.image_singlePlayerNormal.get_rect()
-        self.rect_singlePlayerPos = center_position(self.rect_singlePlayer)
-
-        #title
-        self.image_title = pygame.image.load('assets/menu/title.png').convert_alpha()
-        self.rect_title = self.image_title.get_rect()
-        self.rect_titlePos = center_position(self.rect_title, 0, -400)
-
-        #gui (extension)
-        self.gui = Gui()
-
-    def run(self):
-
-        self.image_singlePlayerFinal = NavigationButton(self.rect_singlePlayer, self.image_singlePlayerNormal, self.image_singlePlayerHover, False)
-
-        self.screen.blit(self.image_singlePlayerFinal, self.rect_singlePlayerPos)
-        self.screen.blit(self.image_title, (self.rect_titlePos[0], 0))
-
-        self.gui.showMouse()
-
-
-
 class Singleplayer:
     def __init__(self):
 
@@ -52,6 +20,8 @@ class Singleplayer:
         # create sprite groups
         self.group_objects = pygame.sprite.Group()
         self.group_players = pygame.sprite.GroupSingle()
+
+        self.group_projectiles = pygame.sprite.Group()
 
         self.animation_player = Animation()
 
@@ -70,7 +40,7 @@ class Singleplayer:
                 if column == 'x':
                     Box((x, y), self.group_objects)
                 if column == 'p':
-                    Player((x, y), self.group_players, self.animation_player)
+                    player = Player((x, y), [self.group_players, self.group_projectiles], self.animation_player)
                 if column == 'b':
                     Border((x, y), self.group_objects)
 
@@ -86,16 +56,16 @@ class Singleplayer:
         self.group_objects.draw(self.screen)
         self.group_objects.update()
 
-        self.group_players.sprite.group_bullet.draw(self.screen)
-        self.group_players.sprite.group_bullet.update()
+        self.group_projectiles.draw(self.screen)
+        self.group_projectiles.update()
 
         self.group_players.draw(self.screen)
         self.group_players.update()
 
         #check for collisions
 
-        if self.group_players.sprite.group_bullet:
-            for bullet in self.group_players.sprite.group_bullet:
+        if self.group_projectiles:
+            for bullet in self.group_projectiles:
                 for object in self.group_objects:
                     if pygame.sprite.collide_rect(bullet, object):
                         object.destroy()
@@ -105,17 +75,15 @@ class Singleplayer:
             for object in self.group_objects:
                 if pygame.sprite.collide_mask(object, player):
                     player.bounce()
-                    object.outline()
                     break
 
         #drawing gui
-
-        self.gui.showMouse()
 
         key = pygame.key.get_pressed()
 
         if key[pygame.K_ESCAPE]:
             self.gui.gameMenu()
+        self.gui.showMouse()
 
 
         #drawing debug mode
@@ -124,5 +92,8 @@ class Singleplayer:
             self.debug.debugMode()
             for player in self.group_players:
                 player.outline()
-            for bullet in self.group_players.sprite.group_bullet:
+            for bullet in self.group_projectiles:
                 bullet.outline()
+            for object in self.group_objects:
+                object.outline()
+

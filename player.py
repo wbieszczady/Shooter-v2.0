@@ -7,12 +7,12 @@ from settings import *
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group, animation):
-        super().__init__(group)
+        super().__init__(group[0])
 
         #common attributes
 
         self.screen = pygame.display.get_surface()
-        self.group = group
+        self.group_projectiles = group[1]
 
         self.isMoving = False
         self.isRotating = False
@@ -122,7 +122,7 @@ class Player(pygame.sprite.Sprite):
 
         if checkForCooldown:
             if keys[pygame.K_SPACE]:
-                Bullet((self.rect.centerx, self.rect.centery), self.group_bullet, self.angleHead, self.animation)
+                Bullet((self.rect.centerx, self.rect.centery), self.group_projectiles, self.angleHead, self.animation)
                 self.bulletCooldownCheck.reset()
 
 

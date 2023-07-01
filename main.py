@@ -1,6 +1,8 @@
-import pygame, sys
-from settings import *
-from singleplayer import MainMenu, Singleplayer
+import sys
+from levels.singleplayer import Singleplayer
+from levels.multiplayer import Multiplayer
+from levels.menu import MainMenu
+from gui import Gui
 from utilities import *
 
 class Game:
@@ -16,6 +18,7 @@ class Game:
     def initialize(self):
         self.mainMenu = MainMenu()
         self.singleplayer = Singleplayer()
+        self.multiplayer = Multiplayer()
 
     def run(self):
         while True:
@@ -27,6 +30,7 @@ class Game:
                 if event.type == backToMenu:
                     del self.singleplayer
                     self.singleplayer = Singleplayer()
+                    self.multiplayer = Multiplayer()
 
             # main loop
 
@@ -38,13 +42,14 @@ class Game:
             if LEVELS['singleplayer']:
                 self.singleplayer.run()
 
+            if LEVELS['multiplayer']:
+                self.multiplayer.run()
+
 
             pygame.display.update()
             #print(self.clock.get_fps())
 
             self.clock.tick(FPS)
-
-
 
 
 if __name__ == '__main__':

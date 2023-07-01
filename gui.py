@@ -29,7 +29,7 @@ class Gui:
         self.screen.blit(self.image_cursor, (self.mouse_pos[0] - 32, self.mouse_pos[1] - 32))
 
     def gameMenu(self):
-        self.image_bMenuFinal = NavigationButton(self.rect_bMenu, self.image_bMenu, self.image_bMenu_hover, True)
+        self.image_bMenuFinal = NavigationButton(self.rect_bMenu, self.image_bMenu, self.image_bMenu_hover, 'mainMenu')
         self.surface.blit(self.image_bMenuFinal, self.rect_bMenuPos)
         self.screen.blit(self.surface, (0, 0))
 
