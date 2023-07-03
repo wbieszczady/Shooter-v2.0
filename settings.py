@@ -8,6 +8,9 @@ TILESIZE = 64
 DEBUG = False
 SHOW_CURSOR = False
 
+GAME_IP = 'localhost'
+GAME_PORT = 5999
+
 LEVELS = {
     'singleplayer': False,
     'multiplayer': False,

@@ -8,15 +8,32 @@ from gui import Gui
 from network import Client
 from threading import Thread
 from levels.menu import Lobby
+from server2 import Server
 
 class Multiplayer:
-    def __init__(self):
+    def __init__(self, server = None):
 
-        self.lobby = Lobby()
+        self.networkServer = server
+        self.networkClient = None
+
+        self.lobby = Lobby(self)
 
 
 
     def run(self):
 
         self.lobby.run()
+
+    def createLobbyServer(self):
+        if self.networkServer == None:
+            print('Server is created.')
+            self.networkServer = Server()
+        else:
+            print('[!] Server is already created')
+            self.networkServer.shutServer()
+            self.networkServer = None
+
+    def getServer(self):
+        return self.networkServer
+
 

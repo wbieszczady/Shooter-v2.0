@@ -30,7 +30,9 @@ class Game:
                 if event.type == backToMenu:
                     del self.singleplayer
                     self.singleplayer = Singleplayer()
-                    self.multiplayer = Multiplayer()
+
+                    server = self.multiplayer.getServer()
+                    self.multiplayer = Multiplayer(server)
 
             # main loop
 

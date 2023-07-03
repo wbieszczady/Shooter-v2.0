@@ -79,10 +79,8 @@ class Singleplayer:
 
         #drawing gui
 
-        key = pygame.key.get_pressed()
 
-        if key[pygame.K_ESCAPE]:
-            self.gui.gameMenu()
+        self.gui.gameMenu()
         self.gui.showMouse()
 
 
