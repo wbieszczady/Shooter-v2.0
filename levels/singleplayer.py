@@ -44,6 +44,19 @@ class Singleplayer:
                 if column == 'b':
                     Border((x, y), self.group_objects)
 
+    def collisions(self):
+        if self.group_projectiles:
+            for bullet in self.group_projectiles:
+                for object in self.group_objects:
+                    if pygame.sprite.collide_rect(bullet, object):
+                        object.destroy()
+                        bullet.kill()
+
+        for player in self.group_players:
+            for object in self.group_objects:
+                if pygame.sprite.collide_mask(object, player):
+                    player.bounce()
+                    break
 
     def run(self):
 
@@ -64,18 +77,7 @@ class Singleplayer:
 
         #check for collisions
 
-        if self.group_projectiles:
-            for bullet in self.group_projectiles:
-                for object in self.group_objects:
-                    if pygame.sprite.collide_rect(bullet, object):
-                        object.destroy()
-                        bullet.kill()
-
-        for player in self.group_players:
-            for object in self.group_objects:
-                if pygame.sprite.collide_mask(object, player):
-                    player.bounce()
-                    break
+        self.collisions()
 
         #drawing gui
 

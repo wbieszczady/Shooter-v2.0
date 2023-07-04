@@ -15,24 +15,36 @@ class Game:
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
+        self.server = None
+
     def initialize(self):
         self.mainMenu = MainMenu()
         self.singleplayer = Singleplayer()
-        self.multiplayer = Multiplayer()
+        self.multiplayer = Multiplayer(self)
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                if self.server != None:
+                    self.multiplayer.killServer()
+                self.multiplayer.clientDisconnect()
+
+                pygame.quit()
+                sys.exit()
+
+            if event.type == backToMenu:
+                del self.singleplayer
+                del self.multiplayer
+                self.singleplayer = Singleplayer()
+                self.multiplayer = Multiplayer(self)
+
+            if event.type == killServer and self.server != None:
+                self.multiplayer.killServer()
 
     def run(self):
         while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
 
-                if event.type == backToMenu:
-                    del self.singleplayer
-                    self.singleplayer = Singleplayer()
-
-                    server = self.multiplayer.getServer()
-                    self.multiplayer = Multiplayer(server)
+            self.handle_events()
 
             # main loop
 

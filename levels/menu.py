@@ -73,6 +73,9 @@ class Lobby:
         self.rect_bMenu = self.image_bMenu.get_rect()
         self.rect_bMenuPos = set_position(self.rect_bMenu, 30, 30)
 
+        #player list
+
+
         #gui
         self.gui = Gui()
 
@@ -88,6 +91,7 @@ class Lobby:
         if not self.game_joined:
             self.image_joinFinal = JoinGameButton(self.rect_join, self.image_join, self.image_join_hover, self)
             self.screen.blit(self.image_joinFinal, self.rect_joinPos)
+
 
 
     def run(self):

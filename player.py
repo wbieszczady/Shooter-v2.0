@@ -18,6 +18,8 @@ class Player(pygame.sprite.Sprite):
         self.isRotating = False
         self.isMovingForward = False
 
+        self.canMove = True
+
         #player body
 
         self.image = pygame.image.load('assets/player/player.png').convert_alpha()
@@ -26,12 +28,14 @@ class Player(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         self.directionBody = Vector2(0, -6)
+        self.angleBody = 0
 
         #player head
 
         self.imageHead = pygame.image.load('assets/player/playerHead.png').convert_alpha()
         self.orig_imageHead = self.imageHead
         self.rectHead = self.imageHead.get_rect(topleft = pos)
+        self.angleHead = 0
 
         #player animations
 
@@ -47,31 +51,32 @@ class Player(pygame.sprite.Sprite):
         self.group_bullet = pygame.sprite.Group()
 
     def rotateHead(self):
+        if self.canMove:
 
-        self.posHead = Vector2(self.rect.center)
+            self.posHead = Vector2(self.rect.center)
 
-        self.directionHead = pygame.mouse.get_pos() - self.posHead
-        self.radiusHead, self.angleHead = self.directionHead.as_polar()
-        self.angleHead = round(self.angleHead, 0)
+            self.directionHead = pygame.mouse.get_pos() - self.posHead
+            self.radiusHead, self.angleHead = self.directionHead.as_polar()
+            self.angleHead = round(self.angleHead, 0)
 
         self.imageHead = pygame.transform.rotate(self.orig_imageHead, -self.angleHead)
         self.rectHead = self.imageHead.get_rect(center=(self.rect.centerx, self.rect.centery))
 
     def rotateBody(self):
+        if self.canMove:
+            keys = pygame.key.get_pressed()
 
-        keys = pygame.key.get_pressed()
+            if keys[pygame.K_a]:
+                self.directionBody.rotate_ip(-2)
+            if keys[pygame.K_d]:
+                self.directionBody.rotate_ip(2)
 
-        if keys[pygame.K_a]:
-            self.directionBody.rotate_ip(-2)
-        if keys[pygame.K_d]:
-            self.directionBody.rotate_ip(2)
+            if keys[pygame.K_d] or keys[pygame.K_a]:
+                self.isRotating = True
+            else:
+                self.isRotating = False
 
-        if keys[pygame.K_d] or keys[pygame.K_a]:
-            self.isRotating = True
-        else:
-            self.isRotating = False
-
-        self.angleBody = round(self.directionBody.angle_to((6, 0)), 2)
+            self.angleBody = round(self.directionBody.angle_to((6, 0)), 2)
 
         self.image = pygame.transform.rotate(self.orig_image, self.angleBody)
         self.rect = self.image.get_rect(center = self.rect.center)
@@ -134,14 +139,21 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.orig_image = self.frames[int(self.frame_index)]
 
+        if not self.canMove:
+            self.orig_image = self.frames[int(self.frame_index)]
+
     def outline(self):
         pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)
 
     def update(self):
         self.rotateBody()
         self.rotateHead()
-        self.move()
+
         self.drawHead()
-        self.shoot()
+
+        if self.canMove:
+
+            self.move()
+            self.shoot()
 
         self.animate()

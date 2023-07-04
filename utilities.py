@@ -4,6 +4,7 @@ from settings import *
 import socket
 
 backToMenu = pygame.USEREVENT + 1
+killServer = pygame.USEREVENT + 2
 
 def import_folder(path):
 
@@ -38,6 +39,7 @@ def NavigationButton(rect, img_normal, img_hover, nav):
 
             if nav == 'mainMenu':
                 pygame.event.post(pygame.event.Event(backToMenu))
+                pygame.event.post(pygame.event.Event(killServer))
 
     else:
         image = img_normal
@@ -53,7 +55,7 @@ def CreateServerButton(rect, img_normal, img_hover, lobby):
             lobby.server_created = True
             lobby.game_joined = True
 
-            lobby.level.createLobbyServer()
+            lobby.level.createServer()
     else:
         image = img_normal
 
@@ -67,6 +69,8 @@ def JoinGameButton(rect, img_normal, img_hover, lobby):
         if pygame.mouse.get_pressed()[0] == 1:
             lobby.server_created = True
             lobby.game_joined = True
+
+            lobby.level.clientConnect()
 
     else:
         image = img_normal

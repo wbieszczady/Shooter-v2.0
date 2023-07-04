@@ -32,25 +32,29 @@ class Server:
 
     def handle_client(self, client, player_index):
 
-        print(f'New connection! (Player index: {player_index})')
+        print(f'[SERVER INFO] New connection! (Player index: {player_index})')
 
-        msg = pickle.dumps(player_index)
+        msg = pickle.dumps([player_index, threading.active_count() - 2])
         client.send(msg)
 
         connected = True
         while connected:
             try:
                 serverReceived = client.recv(1024)
-                data_package = pickle.loads(serverReceived)
+                try:
+                    data_package = pickle.loads(serverReceived)
+                except:
+                    print('[SERVER INFO] Packet Lost...')
 
-                print(f'Data received: {data_package}')
+                print(f'[SERVER INFO] Data received: {data_package}')
 
                 dataToSend = [player_index, data_package]
                 self.broadcast(dataToSend, client)
 
-            except:
+            except Exception as ex:
+                print(f'[SERVER INFO] Lost connection to: {player_index}')
                 break
-        print(f'Lost connection to: {player_index}')
+        print(f'[SERVER INFO] Lost connection to: {player_index}')
 
         for key in self.clients.keys():
             if key == str(player_index):
@@ -72,8 +76,8 @@ class Server:
                     print(f'[BROADCAST] {ex}')
 
     def run(self):
-        print(f'Server is starting... [{self.ip}]')
-        self.server.listen(4)
+        print(f'[SERVER INFO] Server is listening... [{self.ip}]')
+        self.server.listen(1)
         while True:
             try:
                 client, addr = self.server.accept()
@@ -84,19 +88,26 @@ class Server:
                         self.clients[k] = client
                         break
 
-                thread = Thread(target = self.handle_client, args = (client, player_index))
-                print(f'Clients connected: {threading.active_count()}')
+                thread = Thread(target = self.handle_client, args = (client, int(player_index)))
+                print(f'[SERVER INFO] Clients connected: {threading.active_count() - 1}')
                 thread.start()
             except socket.error as ex:
-                print(f'[CLIENT] {ex}')
+                print(f'\n[CLIENT] {ex}')
                 break
 
     def shutServer(self):
         try:
-            print('\nServer is shutting down...')
+            print('\n[SERVER INFO] Server is shutting down...')
 
-            # self.server.shutdown(socket.SHUT_RDWR)
             self.server.close()
+
+            for k, v in self.clients.items():
+                if v != None:
+                    self.clients[k].close()
+
+            self.startThread.join()
+
+            print('[SERVER INFO] Server has shut down.')
 
         except Exception as ex:
             print(f'[SHUTTING DOWN] {ex}')
