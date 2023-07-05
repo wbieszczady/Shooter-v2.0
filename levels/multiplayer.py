@@ -16,9 +16,9 @@ class Multiplayer:
 
         #common
         self.game = game
-        self.networkClient = None
         self.lobby = Lobby(self)
         self.inGame = False
+
 
     def run(self):
 
@@ -29,9 +29,7 @@ class Multiplayer:
 
     def createServer(self):
         self.killServer()
-        print('Server is created.')
         self.game.server = Server()
-        self.clientConnect()
 
     def killServer(self):
         if self.game.server != None:
@@ -39,18 +37,20 @@ class Multiplayer:
             self.game.server = None
 
     def clientConnect(self):
-        if self.networkClient == None:
-            self.networkClient = Client()
+        if self.game.client == None:
+            self.game.client = Client()
             try:
-                index = self.networkClient.connect()
+                index = self.game.client.connect()
                 self.gameMP = MultiplayerGame(self, index[0], index[1])
                 self.inGame = True
             except:
                 print('No connection')
+                self.game.client = None
 
-    def clientDisconnect(self):
-        pass
-
+    def killClient(self):
+        if self.game.client != None:
+            self.game.client.disconnect()
+            self.game.client = None
 
 
 class MultiplayerGame:
@@ -61,7 +61,7 @@ class MultiplayerGame:
         self.player_count = player_count
         self.multiplayer = multiplayer
 
-        self.multiplayer.networkClient.run()
+        self.multiplayer.game.client.run()
 
         # get the display surface
         self.screen = pygame.display.get_surface()
@@ -125,10 +125,10 @@ class MultiplayerGame:
                       'frame': player.frame_index
                       }
 
-        self.multiplayer.networkClient.send(infoToSend)
+        self.multiplayer.game.client.send(infoToSend)
 
     def responseParser(self):
-        response = self.multiplayer.networkClient.response
+        response = self.multiplayer.game.client.response
 
         if response == None:
             pass
@@ -145,6 +145,7 @@ class MultiplayerGame:
     def run(self):
 
         #network
+
 
         self.responseParser()
         self.packageParser()

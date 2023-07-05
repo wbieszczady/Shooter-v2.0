@@ -51,9 +51,6 @@ class Lobby:
         self.screen = pygame.display.get_surface()
         self.level = level
 
-        self.server_created = False
-        self.game_joined = False
-
 
         #create server button
         self.image_create = pygame.image.load('assets/menu/createLobby.png').convert_alpha()
@@ -83,14 +80,12 @@ class Lobby:
         self.image_bMenuFinal = NavigationButton(self.rect_bMenu, self.image_bMenu, self.image_bMenu_hover, 'mainMenu')
         self.screen.blit(self.image_bMenuFinal, self.rect_bMenuPos)
     def button_createServer(self):
-        if not self.server_created:
-            self.image_createFinal = CreateServerButton(self.rect_create, self.image_create, self.image_create_hover, self)
-            self.screen.blit(self.image_createFinal, self.rect_createPos)
+        self.image_createFinal = CreateServerButton(self.rect_create, self.image_create, self.image_create_hover, self)
+        self.screen.blit(self.image_createFinal, self.rect_createPos)
 
     def button_joinGame(self):
-        if not self.game_joined:
-            self.image_joinFinal = JoinGameButton(self.rect_join, self.image_join, self.image_join_hover, self)
-            self.screen.blit(self.image_joinFinal, self.rect_joinPos)
+        self.image_joinFinal = JoinGameButton(self.rect_join, self.image_join, self.image_join_hover, self)
+        self.screen.blit(self.image_joinFinal, self.rect_joinPos)
 
 
 
@@ -101,7 +96,6 @@ class Lobby:
         self.button_joinGame()
         self.button_createServer()
 
-        self.gui.gameMenu()
         self.gui.showMouse()
 
 

@@ -16,6 +16,7 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
         self.server = None
+        self.client = None
 
     def initialize(self):
         self.mainMenu = MainMenu()
@@ -25,9 +26,12 @@ class Game:
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+
+                if self.client != None:
+                    self.multiplayer.killClient()
+
                 if self.server != None:
                     self.multiplayer.killServer()
-                self.multiplayer.clientDisconnect()
 
                 pygame.quit()
                 sys.exit()
@@ -38,8 +42,12 @@ class Game:
                 self.singleplayer = Singleplayer()
                 self.multiplayer = Multiplayer(self)
 
+            if event.type == clientDisconnect and self.client != None:
+                self.multiplayer.killClient()
+
             if event.type == killServer and self.server != None:
                 self.multiplayer.killServer()
+
 
     def run(self):
         while True:

@@ -5,6 +5,7 @@ import socket
 
 backToMenu = pygame.USEREVENT + 1
 killServer = pygame.USEREVENT + 2
+clientDisconnect = pygame.USEREVENT + 3
 
 def import_folder(path):
 
@@ -39,6 +40,7 @@ def NavigationButton(rect, img_normal, img_hover, nav):
 
             if nav == 'mainMenu':
                 pygame.event.post(pygame.event.Event(backToMenu))
+                pygame.event.post(pygame.event.Event(clientDisconnect))
                 pygame.event.post(pygame.event.Event(killServer))
 
     else:
@@ -52,10 +54,9 @@ def CreateServerButton(rect, img_normal, img_hover, lobby):
     if rect.collidepoint(mouse):
         image = img_hover
         if pygame.mouse.get_pressed()[0] == 1:
-            lobby.server_created = True
-            lobby.game_joined = True
 
             lobby.level.createServer()
+            lobby.level.clientConnect()
     else:
         image = img_normal
 
@@ -67,8 +68,6 @@ def JoinGameButton(rect, img_normal, img_hover, lobby):
     if rect.collidepoint(mouse):
         image = img_hover
         if pygame.mouse.get_pressed()[0] == 1:
-            lobby.server_created = True
-            lobby.game_joined = True
 
             lobby.level.clientConnect()
 

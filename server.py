@@ -11,6 +11,8 @@ class Server:
 
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        self.count = 0
+
         self.clients = {
             '0': None,
             '1': None,
@@ -34,7 +36,7 @@ class Server:
 
         print(f'[SERVER INFO] New connection! (Player index: {player_index})')
 
-        msg = pickle.dumps([player_index, threading.active_count() - 2])
+        msg = pickle.dumps([player_index, self.count])
         client.send(msg)
 
         connected = True
@@ -52,16 +54,16 @@ class Server:
                 self.broadcast(dataToSend, client)
 
             except Exception as ex:
-                print(f'[SERVER INFO] Lost connection to: {player_index}')
                 break
+
+
         print(f'[SERVER INFO] Lost connection to: {player_index}')
+        self.count -= 1
+        client.close()
 
         for key in self.clients.keys():
             if key == str(player_index):
                 self.clients[key] = None
-
-        connected = False
-        client.close()
 
 
 
@@ -81,6 +83,7 @@ class Server:
         while True:
             try:
                 client, addr = self.server.accept()
+                self.count += 1
 
                 for k, v in self.clients.items():
                     if v == None:
@@ -89,7 +92,7 @@ class Server:
                         break
 
                 thread = Thread(target = self.handle_client, args = (client, int(player_index)))
-                print(f'[SERVER INFO] Clients connected: {threading.active_count() - 1}')
+                print(f'[SERVER INFO] Clients connected: {self.count}')
                 thread.start()
             except socket.error as ex:
                 print(f'\n[CLIENT] {ex}')

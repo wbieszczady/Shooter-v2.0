@@ -38,6 +38,7 @@ class Client:
             except socket.error as ex:
                 print(f'Lost connection to the server! ({ex})')
                 break
+                self.disconnect()
 
     def send(self, msg):
         data_package = pickle.dumps(msg)
@@ -45,9 +46,12 @@ class Client:
             self.client.sendall(data_package)
         except socket.error as ex:
             print('Lost connection to the server!')
-            self.client.close()
+            self.disconnect()
 
     def disconnect(self):
+
+        print('Connection breaks...')
+
         try:
             self.client.close()
             self.thread.join()
