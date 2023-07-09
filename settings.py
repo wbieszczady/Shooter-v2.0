@@ -10,6 +10,7 @@ SHOW_CURSOR = False
 
 GAME_IP = 'localhost'
 GAME_PORT = 5999
+GAME_NICKNAME = 'jebany huj'
 
 LEVELS = {
     'singleplayer': False,

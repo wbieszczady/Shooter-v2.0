@@ -50,6 +50,8 @@ class Lobby:
         #common
         self.screen = pygame.display.get_surface()
         self.level = level
+        self.stage = 1
+        self.players = None
 
 
         #create server button
@@ -72,7 +74,6 @@ class Lobby:
 
         #player list
 
-
         #gui
         self.gui = Gui()
 
@@ -87,14 +88,28 @@ class Lobby:
         self.image_joinFinal = JoinGameButton(self.rect_join, self.image_join, self.image_join_hover, self)
         self.screen.blit(self.image_joinFinal, self.rect_joinPos)
 
+    def runGame(self):
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_SPACE]:
+            msg = '[LOBBY END]'
+            self.level.game.client.send(msg)
+            self.stage = 3
+
 
 
     def run(self):
 
         self.button_backToMenu()
 
-        self.button_joinGame()
-        self.button_createServer()
+        if self.stage == 1:
+            self.button_joinGame()
+            self.button_createServer()
+        elif self.stage == 2:
+            self.runGame()
+        elif self.stage == 3:
+            pass
+
 
         self.gui.showMouse()
 

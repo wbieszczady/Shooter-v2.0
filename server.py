@@ -1,4 +1,5 @@
 import socket, pickle, time, threading
+import sys
 from threading import Thread
 
 
@@ -20,7 +21,15 @@ class Server:
             '3': None
         }
 
-        self.bind()
+        self.clientsNicknames = {
+            '0': None,
+            '1': None,
+            '2': None,
+            '3': None
+        }
+
+        self.inGame = False
+
 
     def bind(self):
         try:
@@ -29,15 +38,16 @@ class Server:
             self.startThread = Thread(target=self.run)
             self.startThread.start()
 
+            return True
+
         except socket.error as ex:
-            print(f'[BIND] {ex}')
+
+            print(f'[SERVER ERROR] {ex}')
+            return False
 
     def handle_client(self, client, player_index):
 
-        print(f'[SERVER INFO] New connection! (Player index: {player_index})')
-
-        msg = pickle.dumps([player_index, self.count])
-        client.send(msg)
+        print(f'[SERVER] New connection! (Player index: {player_index})')
 
         connected = True
         while connected:
@@ -45,40 +55,91 @@ class Server:
                 serverReceived = client.recv(1024)
                 try:
                     data_package = pickle.loads(serverReceived)
-                except:
-                    print('[SERVER INFO] Packet Lost...')
+                    print(f'\r[SERVER] Data received: {data_package}')
 
-                print(f'[SERVER INFO] Data received: {data_package}')
+                    self.packageParser(client, player_index, data_package)
 
-                dataToSend = [player_index, data_package]
-                self.broadcast(dataToSend, client)
 
-            except Exception as ex:
+                except socket.error as ex:
+                    print(f'[SERVER ERROR] Packet Lost... ({ex})')
+
+            except socket.error as ex:
+                print('[SERVER ERROR] Something went wrong with a client parser.')
+                print(f'[SERVER ERROR] {ex}')
                 break
 
+        self.clientDisconnect(client, player_index)
+    def packageParser(self, client, player_index, data_package):
 
-        print(f'[SERVER INFO] Lost connection to: {player_index}')
+        if data_package[0] == '[GAME DATA]':
+            self.broadcast(data_package, client, player_index)
+
+        if data_package[0] == '[NICKNAME]':
+            self.acceptNickname(data_package, player_index)
+
+        if data_package == '[LOBBY END]':
+            self.lobbyEnd(data_package)
+
+    def acceptNickname(self, data_package, player_index):
+
+        #changing nickname list
+        for key in self.clientsNicknames.keys():
+            if key == str(player_index):
+                self.clientsNicknames[key] = data_package[1]
+
+        #sending changes to other clients
+        self.sendLobbyData(player_index)
+
+    def sendLobbyData(self, player_index):
+
+        msg = ['[LOBBY DATA]', player_index, self.count, self.clientsNicknames]
+        data_package = pickle.dumps(msg)
+
+        for k, v in self.clients.items():
+            if v != None:
+                self.clients[k].sendall(data_package)
+
+    def lobbyEnd(self, msg):
+
+        data_package = pickle.dumps(msg)
+        for k, v in self.clients.items():
+            if v != None:
+                self.clients[k].sendall(data_package)
+
+
+    def clientDisconnect(self, client, player_index):
+
+        print(f'[SERVER] Lost connection to: {player_index}')
         self.count -= 1
+
         client.close()
 
         for key in self.clients.keys():
             if key == str(player_index):
                 self.clients[key] = None
 
+        for key in self.clientsNicknames.keys():
+            if key == str(player_index):
+                self.clientsNicknames[key] = None
+
+        self.sendLobbyData(player_index)
 
 
-    def broadcast(self, data, thisClient):
+    def broadcast(self, data, thisClient, player_index):
+
+        data.append(player_index)
+
         data_package = pickle.dumps(data)
 
         for k, v in self.clients.items():
             if v != thisClient and v != None:
                 try:
                     self.clients[k].sendall(data_package)
-                except socket.error as ex:
-                    print(f'[BROADCAST] {ex}')
+                except:
+                    print(f'[SERVER ERROR] Broadcast problem...')
 
     def run(self):
-        print(f'[SERVER INFO] Server is listening... [{self.ip}]')
+        print(f'[SERVER] Server is listening... [{self.ip}]')
         self.server.listen(1)
         while True:
             try:
@@ -91,16 +152,18 @@ class Server:
                         self.clients[k] = client
                         break
 
+                print(f'[SERVER] Clients connected: {self.count}')
+
                 thread = Thread(target = self.handle_client, args = (client, int(player_index)))
-                print(f'[SERVER INFO] Clients connected: {self.count}')
                 thread.start()
+
             except socket.error as ex:
-                print(f'\n[CLIENT] {ex}')
+                print(f'\n[SERVER ERROR] Client connection problem...')
                 break
 
     def shutServer(self):
         try:
-            print('\n[SERVER INFO] Server is shutting down...')
+            print('\n[SERVER] Server is shutting down.')
 
             self.server.close()
 
@@ -110,7 +173,7 @@ class Server:
 
             self.startThread.join()
 
-            print('[SERVER INFO] Server has shut down.')
+            print('[SERVER] Server has shut down.')
 
         except Exception as ex:
-            print(f'[SHUTTING DOWN] {ex}')
+            print(f'[SERVER] Disconnect problem...')

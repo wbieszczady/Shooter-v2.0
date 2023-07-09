@@ -6,10 +6,6 @@ class Animation:
     def __init__(self):
         self.frame_list = {
             'move': import_folder('assets/player/movement'),
-
-
-
-
             'bullet': import_folder('assets/player/projectiles/bullet')
         }
 

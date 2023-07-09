@@ -19,33 +19,54 @@ class Multiplayer:
         self.lobby = Lobby(self)
         self.inGame = False
 
+        self.serverAvailable = True
+
+    def gameInit(self):
+
+        state = self.game.client.state
+
+        self.multiplayer = MultiplayerGame(self, state[1], state[2])
+
+        self.inGame = True
+
 
     def run(self):
 
         if self.inGame:
-            self.gameMP.run()
+
+            self.multiplayer.run()
         else:
+
             self.lobby.run()
 
     def createServer(self):
         self.killServer()
         self.game.server = Server()
 
+        if self.game.server.bind():
+            self.serverAvailable = True
+
+        else:
+            self.serverAvailable = False
+
+    def clientConnect(self):
+        if self.game.client == None and self.serverAvailable:
+            self.game.client = Client(self)
+            try:
+                self.game.client.run()
+                self.game.client.sendNickname()
+                # self.multiplayer = MultiplayerGame(self, index[0], index[1])
+                # self.inGame = True
+            except:
+                print('No connection')
+                self.game.client = None
+        else:
+            pass
+
     def killServer(self):
         if self.game.server != None:
             self.game.server.shutServer()
             self.game.server = None
-
-    def clientConnect(self):
-        if self.game.client == None:
-            self.game.client = Client()
-            try:
-                index = self.game.client.connect()
-                self.gameMP = MultiplayerGame(self, index[0], index[1])
-                self.inGame = True
-            except:
-                print('No connection')
-                self.game.client = None
 
     def killClient(self):
         if self.game.client != None:
@@ -60,8 +81,6 @@ class MultiplayerGame:
         self.player_index = player_index
         self.player_count = player_count
         self.multiplayer = multiplayer
-
-        self.multiplayer.game.client.run()
 
         # get the display surface
         self.screen = pygame.display.get_surface()
@@ -80,9 +99,11 @@ class MultiplayerGame:
         self.gui = Gui()
         self.debug = Debug(self.group_players)
 
-    def create_map(self):
+        print(f'[PLAYER INDEX] {self.player_index}')
+        print(f'[PLAYER COUNT] {self.player_count}')
 
-        count = 0
+
+    def create_map(self):
 
         for row_index, row in enumerate(WORLD_MAP):
             for column_index, column in enumerate(row):
@@ -93,13 +114,15 @@ class MultiplayerGame:
                     Box((x, y), self.group_objects)
                 if column == 'p':
 
-                    player = Player((x, y), [self.group_players, self.group_projectiles], self.animation_player)
-                    if int(count) != int(self.player_index):
+                    if self.player_count > 0:
+                        player = Player((x, y), [self.group_players, self.group_projectiles], self.animation_player)
+                        self.player_count -= 1
                         player.canMove = False
-                    count += 1
 
                 if column == 'b':
                     Border((x, y), self.group_objects)
+
+        self.group_players.sprites()[self.player_index].canMove = True
 
     def collisions(self):
         if self.group_projectiles:
@@ -125,7 +148,8 @@ class MultiplayerGame:
                       'frame': player.frame_index
                       }
 
-        self.multiplayer.game.client.send(infoToSend)
+        data_package = ['[GAME DATA]', infoToSend]
+        self.multiplayer.game.client.send(data_package)
 
     def responseParser(self):
         response = self.multiplayer.game.client.response
@@ -133,7 +157,8 @@ class MultiplayerGame:
         if response == None:
             pass
         else:
-            player = self.group_players.sprites()[response[0]]
+
+            player = self.group_players.sprites()[response[2]]
             package = response[1]
 
             player.rect = package['rect']

@@ -55,8 +55,11 @@ def CreateServerButton(rect, img_normal, img_hover, lobby):
         image = img_hover
         if pygame.mouse.get_pressed()[0] == 1:
 
+
             lobby.level.createServer()
             lobby.level.clientConnect()
+
+            lobby.stage = 2
     else:
         image = img_normal
 
@@ -70,6 +73,8 @@ def JoinGameButton(rect, img_normal, img_hover, lobby):
         if pygame.mouse.get_pressed()[0] == 1:
 
             lobby.level.clientConnect()
+
+            lobby.stage = 2
 
     else:
         image = img_normal

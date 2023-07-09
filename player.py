@@ -146,6 +146,8 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)
 
     def update(self):
+
+
         self.rotateBody()
         self.rotateHead()
 
