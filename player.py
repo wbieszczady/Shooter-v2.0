@@ -6,7 +6,7 @@ from cooldown import Cooldown
 from settings import *
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, group, animation):
+    def __init__(self, pos, group, animation, index=0):
         super().__init__(group[0])
 
         #common attributes
@@ -22,7 +22,7 @@ class Player(pygame.sprite.Sprite):
 
         #player body
 
-        self.image = pygame.image.load('assets/player/player.png').convert_alpha()
+        self.image = pygame.image.load(f'assets/player/player{index}.png').convert_alpha()
         self.orig_image = self.image
         self.rect = self.image.get_rect(topleft = pos)
         self.mask = pygame.mask.from_surface(self.image)
@@ -32,16 +32,18 @@ class Player(pygame.sprite.Sprite):
 
         #player head
 
-        self.imageHead = pygame.image.load('assets/player/playerHead.png').convert_alpha()
+        self.imageHead = pygame.image.load(f'assets/player/playerHead{index}.png').convert_alpha()
         self.orig_imageHead = self.imageHead
         self.rectHead = self.imageHead.get_rect(topleft = pos)
         self.angleHead = 0
+
+        self.preRotation = {}
 
         #player animations
 
         self.frame_index = 0
         self.animation_speed = 0.45
-        self.frames = animation.animation_player_move()
+        self.frames = animation.animation_player_move(index)
         self.animation = animation
 
         #player projectiles
@@ -59,8 +61,25 @@ class Player(pygame.sprite.Sprite):
             self.radiusHead, self.angleHead = self.directionHead.as_polar()
             self.angleHead = round(self.angleHead, 0)
 
-        self.imageHead = pygame.transform.rotate(self.orig_imageHead, -self.angleHead)
-        self.rectHead = self.imageHead.get_rect(center=(self.rect.centerx, self.rect.centery))
+        # pre calculating rotation
+
+        if self.angleHead in self.preRotation:
+            preRotation = self.preRotation[self.angleHead]
+            self.rectHead = preRotation.get_rect(center=(self.rect.centerx, self.rect.centery))
+            self.screen.blit(preRotation, self.rectHead)
+
+        else:
+            self.imageHead = pygame.transform.rotate(self.orig_imageHead, -self.angleHead)
+            self.rectHead = self.imageHead.get_rect(center=(self.rect.centerx, self.rect.centery))
+            self.preRotation.update({self.angleHead : self.imageHead})
+            self.screen.blit(self.imageHead, self.rectHead)
+
+        # normal rotation
+
+        # self.imageHead = pygame.transform.rotate(self.orig_imageHead, -self.angleHead)
+        # self.rectHead = self.imageHead.get_rect(center=(self.rect.centerx, self.rect.centery))
+        # self.screen.blit(self.imageHead, self.rectHead)
+
 
     def rotateBody(self):
         if self.canMove:
@@ -117,9 +136,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += heading[0]
             self.rect.y += heading[1]
 
-    def drawHead(self):
-        self.screen.blit(self.imageHead, self.rectHead)
-
     def shoot(self):
         keys = pygame.key.get_pressed()
 
@@ -128,6 +144,7 @@ class Player(pygame.sprite.Sprite):
         if checkForCooldown:
             if keys[pygame.K_SPACE]:
                 Bullet((self.rect.centerx, self.rect.centery), self.group_projectiles, self.angleHead, self.animation)
+                self.bulletCooldown -= 1
                 self.bulletCooldownCheck.reset()
 
 
@@ -150,8 +167,6 @@ class Player(pygame.sprite.Sprite):
 
         self.rotateBody()
         self.rotateHead()
-
-        self.drawHead()
 
         if self.canMove:
 

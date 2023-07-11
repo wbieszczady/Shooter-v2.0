@@ -19,7 +19,7 @@ def import_folder(path):
 
     return surface_list
 def center_position(object, vecX=0, vecY=0):
-    object.x, object.y = WIDTH/2 - object.w/2 + vecX, HEIGHT/2 - object.h/2 + vecY
+    object.x, object.y = SCREEN['WIDTH']/2 - object.w/2 + vecX, SCREEN['HEIGHT']/2 - object.h/2 + vecY
     return object.x, object.y
 def set_position(object, x, y):
     object.x, object.y = x, y

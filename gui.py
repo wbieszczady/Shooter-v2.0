@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from utilities import center_position, NavigationButton
+from utilities import center_position, set_position, NavigationButton
 
 
 class Gui:
@@ -11,14 +11,14 @@ class Gui:
 
 
         # menu gui
-        self.surface = pygame.surface.Surface((WIDTH, HEIGHT))
+        self.surface = pygame.surface.Surface((SCREEN['WIDTH'], SCREEN['HEIGHT']))
         self.surface = self.surface.convert_alpha()
         self.surface.fill((0, 0, 0, 190))
 
         self.image_bMenu = pygame.image.load('assets/menu/backToMenu.png').convert_alpha()
         self.image_bMenu_hover = pygame.image.load('assets/menu/backToMenu_hover.png').convert_alpha()
         self.rect_bMenu = self.image_bMenu.get_rect()
-        self.rect_bMenuPos = center_position(self.rect_bMenu, -400, -550)
+        self.rect_bMenuPos = set_position(self.rect_bMenu, 30, 30)
 
 
         # custom cursor

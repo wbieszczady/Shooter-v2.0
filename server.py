@@ -28,6 +28,8 @@ class Server:
             '3': None
         }
 
+        self.gameState = []
+
         self.inGame = False
 
 
@@ -57,6 +59,8 @@ class Server:
                     data_package = pickle.loads(serverReceived)
                     print(f'\r[SERVER] Data received: {data_package}')
 
+                    #TODO figure out how to block client connecting when the game is on (ALREADY DONE !!!)
+
                     self.packageParser(client, player_index, data_package)
 
 
@@ -79,6 +83,7 @@ class Server:
 
         if data_package == '[LOBBY END]':
             self.lobbyEnd(data_package)
+            self.inGame = True
 
     def acceptNickname(self, data_package, player_index):
 
@@ -127,8 +132,6 @@ class Server:
 
     def broadcast(self, data, thisClient, player_index):
 
-        data.append(player_index)
-
         data_package = pickle.dumps(data)
 
         for k, v in self.clients.items():
@@ -140,22 +143,38 @@ class Server:
 
     def run(self):
         print(f'[SERVER] Server is listening... [{self.ip}]')
-        self.server.listen(1)
         while True:
             try:
+
+                self.server.listen(3)
+
                 client, addr = self.server.accept()
-                self.count += 1
 
-                for k, v in self.clients.items():
-                    if v == None:
-                        player_index = k
-                        self.clients[k] = client
-                        break
+                if self.count < 4 and not self.inGame:
 
-                print(f'[SERVER] Clients connected: {self.count}')
+                    self.count += 1
 
-                thread = Thread(target = self.handle_client, args = (client, int(player_index)))
-                thread.start()
+
+                    for k, v in self.clients.items():
+                        if v == None:
+                            player_index = k
+                            self.clients[k] = client
+                            break
+
+                    print(f'[SERVER] Clients connected: {self.count}')
+
+                    thread = Thread(target = self.handle_client, args = (client, int(player_index)))
+                    thread.start()
+                elif self.count == 4:
+                    msg = '[PLAYER LIMIT]'
+                    data_package = pickle.dumps(msg)
+                    client.send(data_package)
+                elif self.inGame:
+                    msg = '[ALREADY IN GAME]'
+                    data_package = pickle.dumps(msg)
+                    client.send(data_package)
+
+
 
             except socket.error as ex:
                 print(f'\n[SERVER ERROR] Client connection problem...')

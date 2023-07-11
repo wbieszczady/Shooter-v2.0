@@ -11,7 +11,7 @@ from utilities import center_position, NavigationButton
 import cProfile
 
 class Singleplayer:
-    def __init__(self):
+    def __init__(self, game):
 
         # get the display surface
         self.screen = pygame.display.get_surface()
@@ -23,7 +23,7 @@ class Singleplayer:
 
         self.group_projectiles = pygame.sprite.Group()
 
-        self.animation_player = Animation()
+        self.animation_player = game.animation
 
         #create map
         self.create_map()

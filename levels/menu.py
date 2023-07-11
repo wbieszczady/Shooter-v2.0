@@ -51,7 +51,6 @@ class Lobby:
         self.screen = pygame.display.get_surface()
         self.level = level
         self.stage = 1
-        self.players = None
 
 
         #create server button
@@ -73,7 +72,15 @@ class Lobby:
         self.rect_bMenuPos = set_position(self.rect_bMenu, 30, 30)
 
         #player list
+        pygame.font.init()
+        self.font = pygame.font.SysFont('Arial', 40)
 
+        self.image_playerPH = pygame.image.load('assets/menu/clientPlaceHolder.png').convert_alpha()
+        self.rect_playerPH = self.image_playerPH.get_rect()
+        self.rect_playerPH_pos = [center_position(self.rect_playerPH, 0, -200),
+                                  center_position(self.rect_playerPH, 0, -70),
+                                  center_position(self.rect_playerPH, 0, 60),
+                                  center_position(self.rect_playerPH, 0, 190)]
         #gui
         self.gui = Gui()
 
@@ -87,6 +94,22 @@ class Lobby:
     def button_joinGame(self):
         self.image_joinFinal = JoinGameButton(self.rect_join, self.image_join, self.image_join_hover, self)
         self.screen.blit(self.image_joinFinal, self.rect_joinPos)
+
+    def playerList(self):
+
+        for pos in self.rect_playerPH_pos:
+            self.screen.blit(self.image_playerPH, pos)
+
+        if self.level.state != None:
+            self.players = self.level.state[3]
+
+            for k in self.players.keys():
+                if self.players[k] != None:
+                    index = int(k)
+
+                    text = self.font.render(str(self.players[k]), False, (255, 255, 255))
+                    self.screen.blit(text, self.rect_playerPH_pos[index])
+
 
     def runGame(self):
         keys = pygame.key.get_pressed()
@@ -107,6 +130,7 @@ class Lobby:
             self.button_createServer()
         elif self.stage == 2:
             self.runGame()
+            self.playerList()
         elif self.stage == 3:
             pass
 
