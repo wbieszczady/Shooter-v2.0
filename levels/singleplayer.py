@@ -13,6 +13,8 @@ import cProfile
 class Singleplayer:
     def __init__(self, game):
 
+        #TODO create player-centerd camera
+
         # get the display surface
         self.screen = pygame.display.get_surface()
         self.background = pygame.image.load('assets/obstacles/map.png').convert_alpha()

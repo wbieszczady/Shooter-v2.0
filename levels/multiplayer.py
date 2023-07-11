@@ -158,6 +158,7 @@ class MultiplayerGame:
         self.multiplayer.game.client.send(data_package)
 
     def responseParser(self):
+
         response = self.multiplayer.game.client.response
 
         if response == None:

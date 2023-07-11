@@ -47,6 +47,8 @@ class MainMenu:
 class Lobby:
     def __init__(self, level):
 
+        #TODO create textbox for IP connection and STARTGAME button
+
         #common
         self.screen = pygame.display.get_surface()
         self.level = level

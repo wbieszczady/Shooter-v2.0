@@ -3,6 +3,8 @@ from utilities import import_folder
 
 
 class Animation:
+
+    #TODO import all resources to this class
     def __init__(self):
         self.frame_list = {
             'move0': import_folder('assets/player/movement0'),

@@ -59,8 +59,6 @@ class Server:
                     data_package = pickle.loads(serverReceived)
                     print(f'\r[SERVER] Data received: {data_package}')
 
-                    #TODO figure out how to block client connecting when the game is on (ALREADY DONE !!!)
-
                     self.packageParser(client, player_index, data_package)
 
 

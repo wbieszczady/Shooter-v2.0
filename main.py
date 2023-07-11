@@ -92,6 +92,8 @@ class Game:
 
             pygame.display.update()
 
+            #TODO create functional delta time
+
             self.clock.tick(FPS)
 
 

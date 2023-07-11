@@ -46,8 +46,8 @@ class Client:
                     data_package = pickle.loads(serverReceive)
                     print(f'[CLIENT] Data received: {data_package}')
 
-
                     if data_package[0] == '[GAME DATA]':
+                        # TODO get information about collisions and box destroyed
                         self.response = data_package
 
                     #TODO get this code below and transfer it to the server / or create new package alias
