@@ -7,8 +7,8 @@ class Cooldown:
     def __init__(self):
         self.bTime = time()
 
-    def calculate(self, delay, currentTime):
-        newTime = currentTime - self.bTime
+    def calculate(self, delay):
+        newTime = time() - self.bTime
         newTime = round(newTime * 100)
 
         if newTime >= delay:
@@ -25,9 +25,9 @@ class Decay:
     def __init__(self):
         self.bTime = time()
 
-    def bulletDecay(self, decayTime, object, currentTime):
-        newTime = currentTime - self.bTime
+    def bulletDecay(self, object):
+        newTime = time() - self.bTime
         newTime = round(newTime * 100)
 
-        if newTime >= decayTime:
+        if newTime >= object.decayTime:
             object.kill()

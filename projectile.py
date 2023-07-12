@@ -25,6 +25,6 @@ class Bullet(pygame.sprite.Sprite):
         pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)
 
     def update(self):
-        self.decay.bulletDecay(self.decayTime, self, time.time())
+        self.decay.bulletDecay(self)
         self.rect.x += round(self.heading[0] * 20)
         self.rect.y += round(self.heading[1] * 20)

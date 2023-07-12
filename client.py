@@ -1,4 +1,4 @@
-import socket, threading, pickle, time, pygame
+import socket, threading, pickle, time, pygame, gc
 from threading import Thread
 from settings import *
 from utilities import *
@@ -13,12 +13,9 @@ class Client:
         self.port = 5999
         self.addr = (self.ip, self.port)
 
-        self.packet_test = {'message': 'huj',
-                            'test': 4
-                            }
-
         self.state = None
-        self.response = None
+
+        self.response = {'0': None, '1': None, '2': None, '3': None}
 
         self.mainThread = Thread(target=self.receive)
 
@@ -44,22 +41,32 @@ class Client:
                 serverReceive = self.client.recv(1024)
                 try:
                     data_package = pickle.loads(serverReceive)
-                    print(f'[CLIENT] Data received: {data_package}')
+                    #print(f'[CLIENT] Data received: {data_package}')
 
                     if data_package[0] == '[GAME DATA]':
                         # TODO get information about collisions and box destroyed
-                        self.response = data_package
 
-                    #TODO get this code below and transfer it to the server / or create new package alias
+                        try:
+                            self.response[str(data_package[1]['index'])] = data_package[1]
+                        except:
+                            print('[CLIENT] Parse error')
 
-                    if data_package[0] == '[LOBBY DATA]':
+                    if data_package[0] == '[LOBBY DATA INITIAL]':
                         if self.state == None:
                             self.state = data_package
-                            self.multiplayer.updateState()
                         else:
                             self.state[2] = data_package[2]
                             self.state[3] = data_package[3]
-                            self.multiplayer.updateState()
+
+                        self.multiplayer.updateState()
+
+                    if data_package[0] == '[LOBBY DATA]':
+
+                        self.state[2] = data_package[1]
+                        self.state[3] = data_package[2]
+
+                        self.multiplayer.updateState()
+
 
                     if data_package == '[LOBBY END]':
                         self.multiplayer.gameInit()
@@ -104,6 +111,7 @@ class Client:
 
             if self.mainThread.is_alive():
                 self.mainThread.join()
+                gc.collect()
 
             pygame.event.post(pygame.event.Event(backToMenu))
             pygame.event.post(pygame.event.Event(clientDisconnect))

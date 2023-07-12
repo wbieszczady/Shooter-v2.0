@@ -19,6 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.isMovingForward = False
 
         self.canMove = True
+        self.index = index
 
         #player body
 
@@ -37,7 +38,12 @@ class Player(pygame.sprite.Sprite):
         self.rectHead = self.imageHead.get_rect(topleft = pos)
         self.angleHead = 0
 
+        #precalculating rotation
+
         self.preRotation = {}
+        for angle in range(-181, 181):
+            self.imageHead = pygame.transform.rotate(self.orig_imageHead, -angle)
+            self.preRotation.update({angle: self.imageHead})
 
         #player animations
 
@@ -63,22 +69,9 @@ class Player(pygame.sprite.Sprite):
 
         # pre calculating rotation
 
-        if self.angleHead in self.preRotation:
-            preRotation = self.preRotation[self.angleHead]
-            self.rectHead = preRotation.get_rect(center=(self.rect.centerx, self.rect.centery))
-            self.screen.blit(preRotation, self.rectHead)
-
-        else:
-            self.imageHead = pygame.transform.rotate(self.orig_imageHead, -self.angleHead)
-            self.rectHead = self.imageHead.get_rect(center=(self.rect.centerx, self.rect.centery))
-            self.preRotation.update({self.angleHead : self.imageHead})
-            self.screen.blit(self.imageHead, self.rectHead)
-
-        # normal rotation
-
-        # self.imageHead = pygame.transform.rotate(self.orig_imageHead, -self.angleHead)
-        # self.rectHead = self.imageHead.get_rect(center=(self.rect.centerx, self.rect.centery))
-        # self.screen.blit(self.imageHead, self.rectHead)
+        preRotation = self.preRotation[self.angleHead]
+        self.rectHead = preRotation.get_rect(center=(self.rect.centerx, self.rect.centery))
+        self.screen.blit(preRotation, self.rectHead)
 
 
     def rotateBody(self):
@@ -139,14 +132,15 @@ class Player(pygame.sprite.Sprite):
     def shoot(self):
         keys = pygame.key.get_pressed()
 
-        checkForCooldown = self.bulletCooldownCheck.calculate(self.bulletCooldown, time())
+        checkForCooldown = self.bulletCooldownCheck.calculate(self.bulletCooldown)
 
-        if checkForCooldown:
+        if checkForCooldown and self.canMove:
             if keys[pygame.K_SPACE]:
-                Bullet((self.rect.centerx, self.rect.centery), self.group_projectiles, self.angleHead, self.animation)
-                self.bulletCooldown -= 1
-                self.bulletCooldownCheck.reset()
+                self.createBullet()
 
+    def createBullet(self):
+        Bullet((self.rect.centerx, self.rect.centery), self.group_projectiles, self.angleHead, self.animation)
+        self.bulletCooldownCheck.reset()
 
     def animate(self):
         if self.isMoving:
@@ -169,8 +163,7 @@ class Player(pygame.sprite.Sprite):
         self.rotateHead()
 
         if self.canMove:
-
             self.move()
-            self.shoot()
 
+        self.shoot()
         self.animate()

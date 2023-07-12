@@ -15,7 +15,7 @@ class Animation:
         }
 
     def animation_player_move(self, index):
-        animation_frames = self.frame_list['move'+str(index)]
+        animation_frames = self.frame_list[f'move{index}']
         return animation_frames
 
     def animation_player_bullet(self):

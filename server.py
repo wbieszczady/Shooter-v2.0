@@ -1,4 +1,4 @@
-import socket, pickle, time, threading
+import socket, pickle, time, threading, gc
 import sys
 from threading import Thread
 
@@ -28,8 +28,6 @@ class Server:
             '3': None
         }
 
-        self.gameState = []
-
         self.inGame = False
 
 
@@ -57,7 +55,7 @@ class Server:
                 serverReceived = client.recv(1024)
                 try:
                     data_package = pickle.loads(serverReceived)
-                    print(f'\r[SERVER] Data received: {data_package}')
+                    #print(f'\r[SERVER] Data received: {data_package}')
 
                     self.packageParser(client, player_index, data_package)
 
@@ -95,7 +93,15 @@ class Server:
 
     def sendLobbyData(self, player_index):
 
-        msg = ['[LOBBY DATA]', player_index, self.count, self.clientsNicknames]
+        msg = ['[LOBBY DATA INITIAL]', player_index, self.count, self.clientsNicknames]
+        data_package = pickle.dumps(msg)
+
+        for k, v in self.clients.items():
+            if v != None:
+                self.clients[k].sendall(data_package)
+
+    def updateLobbyData(self):
+        msg = ['[LOBBY DATA]', self.count, self.clientsNicknames]
         data_package = pickle.dumps(msg)
 
         for k, v in self.clients.items():
@@ -125,7 +131,7 @@ class Server:
             if key == str(player_index):
                 self.clientsNicknames[key] = None
 
-        self.sendLobbyData(player_index)
+        self.updateLobbyData()
 
 
     def broadcast(self, data, thisClient, player_index):
@@ -189,6 +195,8 @@ class Server:
                     self.clients[k].close()
 
             self.startThread.join()
+            gc.collect()
+
 
             print('[SERVER] Server has shut down.')
 

@@ -165,14 +165,17 @@ class MultiplayerGame:
             pass
 
         else:
-            package = response[1]
-            player = self.group_players.sprites()[package['index']]
 
-            player.rect = package['rect']
-            player.rectHead = package['rectHead']
-            player.angleBody = package['angle']
-            player.angleHead = package['angleHead']
-            player.frame_index = package['frame']
+            for k, v in enumerate(response.items()):
+                if v[1] != None:
+                    package = v[1]
+                    player = self.group_players.sprites()[int(k)]
+
+                    player.rect = package['rect']
+                    player.rectHead = package['rectHead']
+                    player.angleBody = package['angle']
+                    player.angleHead = package['angleHead']
+                    player.frame_index = package['frame']
 
     def run(self):
 

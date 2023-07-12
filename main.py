@@ -1,6 +1,6 @@
 import sys
 import pygame
-
+import threading
 from levels.singleplayer import Singleplayer
 from levels.multiplayer import Multiplayer
 from levels.menu import MainMenu
@@ -89,12 +89,13 @@ class Game:
             if LEVELS['multiplayer']:
                 self.multiplayer.run()
 
-
             pygame.display.update()
 
             #TODO create functional delta time
 
-            self.clock.tick(FPS)
+            print(self.clock.get_fps())
+
+            self.clock.tick()
 
 
 if __name__ == '__main__':
