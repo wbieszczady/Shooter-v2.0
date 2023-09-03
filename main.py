@@ -1,6 +1,9 @@
 import sys
 import pygame
 import threading
+
+import pygame_widgets
+
 from levels.singleplayer import Singleplayer
 from levels.multiplayer import Multiplayer
 from levels.menu import MainMenu
@@ -23,78 +26,75 @@ class Game:
 
         info = pygame.display.Info()
 
-        # SCREEN['WIDTH'] = info.current_w
-        # SCREEN['HEIGHT'] = info.current_h
+        self.WIDTH = info.current_w/2
+        self.HEIGHT = info.current_h/2
+        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
 
-        SCREEN['WIDTH'] = 1000
-        SCREEN['HEIGHT'] = 1000
-
-        self.screen = pygame.display.set_mode((SCREEN['WIDTH'], SCREEN['HEIGHT']))
-
-        # network
-
-        self.server = None
-        self.client = None
+        self.gui = Gui()
 
         # resources
 
         self.animation = Animation()
 
+
+        # controls
+
+        self.level = 'mainMenu'
+
     def initialize(self):
-        self.mainMenu = MainMenu()
+        self.mainMenu = MainMenu(self)
         self.singleplayer = Singleplayer(self)
-        self.multiplayer = Multiplayer(self)
 
     def handle_events(self):
-        for event in pygame.event.get():
+        events = pygame.event.get()
+
+        for event in events:
             if event.type == pygame.QUIT:
-
-                if self.client != None:
-                    self.multiplayer.killClient()
-
-                if self.server != None:
-                    self.multiplayer.killServer()
 
                 pygame.quit()
                 sys.exit()
 
             if event.type == backToMenu:
-                del self.singleplayer
-                del self.multiplayer
                 self.singleplayer = Singleplayer(self)
-                self.multiplayer = Multiplayer(self)
 
-            if event.type == clientDisconnect and self.client != None:
-                self.multiplayer.killClient()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    match self.level:
+                        case 'mainMenu':
+                            pass
+                        case 'singleplayer':
+                            self.level = 'mainMenu'
+                        case 'multiplayer':
+                            self.level = 'mainMenu'
 
-            if event.type == killServer and self.server != None:
-                self.multiplayer.killServer()
+
+
+        pygame_widgets.update(events)
 
 
     def run(self):
         while True:
 
-            self.handle_events()
-
             # main loop
 
             self.screen.fill('black')
 
-            if LEVELS['mainMenu']:
-                self.mainMenu.run()
+            self.handle_events()
 
-            if LEVELS['singleplayer']:
-                self.singleplayer.run()
+            match self.level:
+                case 'mainMenu':
+                    self.mainMenu.run()
+                case 'singleplayer':
+                    self.singleplayer.run()
+                case 'multiplayer':
+                    pass
 
-            if LEVELS['multiplayer']:
-                self.multiplayer.run()
+            self.gui.show()
 
             pygame.display.update()
 
             #TODO create functional delta time
-
             print(self.clock.get_fps())
-
             self.clock.tick()
 
 

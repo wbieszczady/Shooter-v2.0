@@ -1,47 +1,56 @@
 import pygame
-from utilities import center_position, NavigationButton, set_position, CreateServerButton, JoinGameButton
+import pygame_widgets
+from utilities import NavigationButton, CreateServerButton, JoinGameButton
 from utilities import *
 from gui import Gui
+from pygame_widgets.button import Button
 
 
 
 class MainMenu:
-    def __init__(self):
+    def __init__(self, game):
 
         #common
         self.screen = pygame.display.get_surface()
+        self.game = game
 
-        #singleplayer button
-        self.image_singlePlayerNormal = pygame.image.load('assets/menu/singleplayer.png').convert_alpha()
-        self.image_singlePlayerHover = pygame.image.load('assets/menu/singleplayer_hover.png').convert_alpha()
-        self.rect_singlePlayer = self.image_singlePlayerNormal.get_rect()
-        self.rect_singlePlayerPos = center_position(self.rect_singlePlayer)
 
-        # multiplayer button
-        self.image_multiPlayerNormal = pygame.image.load('assets/menu/multiplayer.png').convert_alpha()
-        self.image_multiPlayerHover = pygame.image.load('assets/menu/multiplayer_hover.png').convert_alpha()
-        self.rect_multiPlayer = self.image_multiPlayerNormal.get_rect()
-        self.rect_multiPlayerPos = center_position(self.rect_multiPlayer, 0, 120)
+        self.widgets = []
 
-        #title
-        self.image_title = pygame.image.load('assets/menu/title.png').convert_alpha()
-        self.rect_title = self.image_title.get_rect()
-        self.rect_titlePos = center_position(self.rect_title, 0, -400)
-
-        #gui (extension)
-        self.gui = Gui()
+        # #singleplayer button
+        # self.image_singlePlayerNormal = pygame.image.load('assets/menu/singleplayer.png').convert_alpha()
+        # self.image_singlePlayerHover = pygame.image.load('assets/menu/singleplayer_hover.png').convert_alpha()
+        # self.rect_singlePlayer = self.image_singlePlayerNormal.get_rect()
+        # self.rect_singlePlayerPos = center_position(self.rect_singlePlayer)
+        #
+        # # multiplayer button
+        # self.image_multiPlayerNormal = pygame.image.load('assets/menu/multiplayer.png').convert_alpha()
+        # self.image_multiPlayerHover = pygame.image.load('assets/menu/multiplayer_hover.png').convert_alpha()
+        # self.rect_multiPlayer = self.image_multiPlayerNormal.get_rect()
+        # self.rect_multiPlayerPos = center_position(self.rect_multiPlayer, 0, 120)
+        #
+        # #title
+        # self.image_title = pygame.image.load('assets/menu/title.png').convert_alpha()
+        # self.rect_title = self.image_title.get_rect()
+        # self.rect_titlePos = center_position(self.rect_title, 0, -400)
 
     def run(self):
+        self.b1 = Button(win=self.screen, x=0, y=3, width=300, height=80,
+                         onClick=lambda: self.changeLevel('singleplayer'), text='Singleplayer', fontSize=36)
+        self.b2 = Button(win=self.screen, x=0, y=90, width=300, height=80,
+                         onClick=lambda: self.changeLevel('multiplayer'), text='Multiplayer', fontSize=36)
 
-        self.image_singlePlayerFinal = NavigationButton(self.rect_singlePlayer, self.image_singlePlayerNormal, self.image_singlePlayerHover, 'singleplayer')
-        self.image_multiPlayerFinal = NavigationButton(self.rect_multiPlayer, self.image_multiPlayerNormal, self.image_multiPlayerHover, 'multiplayer')
+        self.widgets.append(self.b1)
+        self.widgets.append(self.b2)
 
-        self.screen.blit(self.image_singlePlayerFinal, self.rect_singlePlayerPos)
-        self.screen.blit(self.image_multiPlayerFinal, self.rect_multiPlayerPos)
+    def changeLevel(self, lvl):
+        self.game.level = lvl
 
-        self.screen.blit(self.image_title, (self.rect_titlePos[0], 0))
+        for widget in self.widgets:
+            widget.hide()
 
-        self.gui.showMouse()
+        self.widgets = []
+
 
 
 class Lobby:

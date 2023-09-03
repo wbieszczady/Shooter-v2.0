@@ -6,17 +6,19 @@ from cooldown import Cooldown
 from settings import *
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, group, animation, index=0):
-        super().__init__(group[0])
+    def __init__(self, game, pos, index=0):
+        super().__init__(game.group_players)
 
         #common attributes
 
         self.screen = pygame.display.get_surface()
-        self.group_projectiles = group[1]
+        self.group_projectiles = game.group_projectiles
 
         self.isMoving = False
         self.isRotating = False
         self.isMovingForward = False
+
+        self.game = game
 
         self.canMove = True
         self.index = index
@@ -47,14 +49,14 @@ class Player(pygame.sprite.Sprite):
 
         #player animations
 
+        self.animation = game.animation_player
         self.frame_index = 0
         self.animation_speed = 0.45
-        self.frames = animation.animation_player_move(index)
-        self.animation = animation
+        self.frames = self.animation.animation_player_move(index)
 
         #player projectiles
         self.bulletCooldownCheck = Cooldown()
-        self.bulletCooldown = 45 # [ms]
+        self.bulletCooldown = 5 # [ms]
 
         self.group_bullet = pygame.sprite.Group()
 
@@ -136,7 +138,11 @@ class Player(pygame.sprite.Sprite):
 
         if checkForCooldown and self.canMove:
             if keys[pygame.K_SPACE]:
-                self.createBullet()
+                if self.game.online:
+                    self.game.bulletParser()
+                else:
+                    self.createBullet()
+                self.bulletCooldownCheck.reset()
 
     def createBullet(self):
         Bullet((self.rect.centerx, self.rect.centery), self.group_projectiles, self.angleHead, self.animation)

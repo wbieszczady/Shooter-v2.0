@@ -1,11 +1,11 @@
 import pygame
-from utilities import center_position, NavigationButton
+from utilities import NavigationButton
 from utilities import *
 from animation import Animation
 from settings import *
 from tile import Border, Box
 from player import Player
-from gui import Gui, Debug
+from gui import Gui
 from network import Client
 from threading import Thread
 from levels.menu import Lobby
@@ -82,6 +82,8 @@ class MultiplayerGame:
     def __init__(self, multiplayer, player_index, player_count):
 
         #common
+        self.online = True
+
         self.player_index = player_index
         self.player_count = player_count
         self.multiplayer = multiplayer
@@ -117,7 +119,7 @@ class MultiplayerGame:
                 if column == 'p':
 
                     if self.player_count > 0:
-                        player = Player((x, y), [self.group_players, self.group_projectiles], self.animation_player, index)
+                        player = Player(self, (x, y), index)
                         self.player_count -= 1
                         index += 1
                         player.canMove = False
@@ -141,6 +143,15 @@ class MultiplayerGame:
                     player.bounce()
                     break
 
+    def bulletParser(self):
+        data_package = '[GAMEDATA-2]'
+        self.multiplayer.game.client.send(data_package)
+
+    def bulletResponse(self, index):
+        player = self.group_players.sprites()[index]
+        player.createBullet()
+
+
     def packageParser(self):
         player = self.group_players.sprites()[self.player_index]
 
@@ -154,7 +165,7 @@ class MultiplayerGame:
                       'frame': player.frame_index
                       }
 
-        data_package = ['[GAME DATA]', infoToSend]
+        data_package = ['[GAMEDATA-1]', infoToSend]
         self.multiplayer.game.client.send(data_package)
 
     def responseParser(self):
@@ -176,6 +187,7 @@ class MultiplayerGame:
                     player.angleBody = package['angle']
                     player.angleHead = package['angleHead']
                     player.frame_index = package['frame']
+
 
     def run(self):
 

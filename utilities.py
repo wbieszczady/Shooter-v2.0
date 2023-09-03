@@ -18,12 +18,6 @@ def import_folder(path):
             surface_list.append(image_surf)
 
     return surface_list
-def center_position(object, vecX=0, vecY=0):
-    object.x, object.y = SCREEN['WIDTH']/2 - object.w/2 + vecX, SCREEN['HEIGHT']/2 - object.h/2 + vecY
-    return object.x, object.y
-def set_position(object, x, y):
-    object.x, object.y = x, y
-    return object.x, object.y
 
 def NavigationButton(rect, img_normal, img_hover, nav):
     mouse = pygame.mouse.get_pos()
@@ -40,8 +34,6 @@ def NavigationButton(rect, img_normal, img_hover, nav):
 
             if nav == 'mainMenu':
                 pygame.event.post(pygame.event.Event(backToMenu))
-                pygame.event.post(pygame.event.Event(clientDisconnect))
-                pygame.event.post(pygame.event.Event(killServer))
 
     else:
         image = img_normal

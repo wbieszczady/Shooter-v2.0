@@ -16,6 +16,7 @@ class Client:
         self.state = None
 
         self.response = {'0': None, '1': None, '2': None, '3': None}
+        self.response2 = None
 
         self.mainThread = Thread(target=self.receive)
 
@@ -32,8 +33,6 @@ class Client:
 
             return False
 
-
-
     def receive(self):
         print('[CLIENT] Listening...')
         while True:
@@ -43,13 +42,16 @@ class Client:
                     data_package = pickle.loads(serverReceive)
                     #print(f'[CLIENT] Data received: {data_package}')
 
-                    if data_package[0] == '[GAME DATA]':
+                    if data_package[0] == '[GAMEDATA-1]':
                         # TODO get information about collisions and box destroyed
 
                         try:
                             self.response[str(data_package[1]['index'])] = data_package[1]
                         except:
                             print('[CLIENT] Parse error')
+
+                    if data_package[0] == '[GAMEDATA-2]':
+                        self.multiplayer.multiplayer.bulletResponse(data_package[1])
 
                     if data_package[0] == '[LOBBY DATA INITIAL]':
                         if self.state == None:
@@ -67,7 +69,6 @@ class Client:
 
                         self.multiplayer.updateState()
 
-
                     if data_package == '[LOBBY END]':
                         self.multiplayer.gameInit()
 
@@ -80,7 +81,6 @@ class Client:
                         print('[CLIENT] Connection refused. (Game has already started)')
                         pygame.event.post(pygame.event.Event(backToMenu))
                         pygame.event.post(pygame.event.Event(clientDisconnect))
-
 
                 except socket.error as ex:
                     print(f'[CLIENT ERROR] Packet lost... ({ex})')
@@ -116,11 +116,8 @@ class Client:
             pygame.event.post(pygame.event.Event(backToMenu))
             pygame.event.post(pygame.event.Event(clientDisconnect))
 
-
         except socket.error as ex:
             print(ex)
 
-
     def run(self):
         self.mainThread.start()
-

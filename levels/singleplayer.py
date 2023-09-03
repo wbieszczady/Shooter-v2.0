@@ -4,16 +4,17 @@ import pygame, time
 from settings import *
 from tile import *
 from player import Player
-from gui import Gui, Debug
+from gui import Gui
 from threading import Thread
 from animation import Animation
-from utilities import center_position, NavigationButton
+from utilities import NavigationButton
 import cProfile
 
 class Singleplayer:
     def __init__(self, game):
 
         #TODO create player-centerd camera
+        self.online = False
 
         # get the display surface
         self.screen = pygame.display.get_surface()
@@ -21,7 +22,7 @@ class Singleplayer:
 
         # create sprite groups
         self.group_objects = pygame.sprite.Group()
-        self.group_players = pygame.sprite.GroupSingle()
+        self.group_players = pygame.sprite.Group()
 
         self.group_projectiles = pygame.sprite.Group()
 
@@ -29,9 +30,6 @@ class Singleplayer:
 
         #create map
         self.create_map()
-
-        self.gui = Gui()
-        self.debug = Debug(self.group_players)
 
     def create_map(self):
         for row_index, row in enumerate(WORLD_MAP):
@@ -42,7 +40,7 @@ class Singleplayer:
                 if column == 'x':
                     Box((x, y), self.group_objects)
                 if column == 'p':
-                    player = Player((x, y), [self.group_players, self.group_projectiles], self.animation_player)
+                    player = Player(self, (x, y))
                 if column == 'b':
                     Border((x, y), self.group_objects)
 
@@ -80,22 +78,4 @@ class Singleplayer:
         #check for collisions
 
         self.collisions()
-
-        #drawing gui
-
-
-        self.gui.gameMenu()
-        self.gui.showMouse()
-
-
-        #drawing debug mode
-
-        if DEBUG:
-            self.debug.debugMode()
-            for player in self.group_players:
-                player.outline()
-            for bullet in self.group_projectiles:
-                bullet.outline()
-            for object in self.group_objects:
-                object.outline()
 

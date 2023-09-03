@@ -71,8 +71,11 @@ class Server:
         self.clientDisconnect(client, player_index)
     def packageParser(self, client, player_index, data_package):
 
-        if data_package[0] == '[GAME DATA]':
+        if data_package[0] == '[GAMEDATA-1]':
             self.broadcast(data_package, client, player_index)
+
+        if data_package == '[GAMEDATA-2]':
+            self.broadcastAll(data_package, player_index)
 
         if data_package[0] == '[NICKNAME]':
             self.acceptNickname(data_package, player_index)
@@ -80,6 +83,28 @@ class Server:
         if data_package == '[LOBBY END]':
             self.lobbyEnd(data_package)
             self.inGame = True
+
+    def broadcastAll(self, data, player_index):
+
+        data_package = pickle.dumps([data, player_index])
+
+        for k, v in self.clients.items():
+            if v != None:
+                self.clients[k].sendall(data_package)
+
+
+
+    def broadcast(self, data, thisClient, player_index):
+
+        data_package = pickle.dumps(data)
+
+        for k, v in self.clients.items():
+            if v != thisClient and v != None:
+                try:
+                    self.clients[k].sendall(data_package)
+                except:
+                    print(f'[SERVER ERROR] Broadcast problem...')
+
 
     def acceptNickname(self, data_package, player_index):
 
@@ -116,6 +141,7 @@ class Server:
                 self.clients[k].sendall(data_package)
 
 
+
     def clientDisconnect(self, client, player_index):
 
         print(f'[SERVER] Lost connection to: {player_index}')
@@ -134,17 +160,6 @@ class Server:
         self.updateLobbyData()
 
 
-    def broadcast(self, data, thisClient, player_index):
-
-        data_package = pickle.dumps(data)
-
-        for k, v in self.clients.items():
-            if v != thisClient and v != None:
-                try:
-                    self.clients[k].sendall(data_package)
-                except:
-                    print(f'[SERVER ERROR] Broadcast problem...')
-
     def run(self):
         print(f'[SERVER] Server is listening... [{self.ip}]')
         while True:
@@ -158,7 +173,6 @@ class Server:
 
                     self.count += 1
 
-
                     for k, v in self.clients.items():
                         if v == None:
                             player_index = k
@@ -169,6 +183,7 @@ class Server:
 
                     thread = Thread(target = self.handle_client, args = (client, int(player_index)))
                     thread.start()
+
                 elif self.count == 4:
                     msg = '[PLAYER LIMIT]'
                     data_package = pickle.dumps(msg)
