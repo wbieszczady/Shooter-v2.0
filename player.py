@@ -1,9 +1,10 @@
 import pygame, math
 from time import time
+import time
 from pygame import Vector2
 from projectile import Bullet
-from cooldown import Cooldown
 from settings import *
+from threading import Thread
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, pos, index=0):
@@ -20,7 +21,6 @@ class Player(pygame.sprite.Sprite):
 
         self.game = game
 
-        self.canMove = True
         self.index = index
 
         #player body
@@ -55,19 +55,26 @@ class Player(pygame.sprite.Sprite):
         self.frames = self.animation.animation_player_move(index)
 
         #player projectiles
-        self.bulletCooldownCheck = Cooldown()
-        self.bulletCooldown = 5 # [ms]
+        self.bulletCooldown = 10 # [ms]
 
-        self.group_bullet = pygame.sprite.Group()
+        #listener
+        moveListener = Thread(target=self.move, daemon=True)
+        moveListener.start()
+
+        rotateListener = Thread(target=self.rotateBody, daemon=True)
+        rotateListener.start()
+
+        shootListener = Thread(target=self.shoot, daemon=True)
+        shootListener.start()
+
 
     def rotateHead(self):
-        if self.canMove:
 
-            self.posHead = Vector2(self.rect.center)
+        self.posHead = Vector2(self.rect.center)
 
-            self.directionHead = pygame.mouse.get_pos() - self.posHead
-            self.radiusHead, self.angleHead = self.directionHead.as_polar()
-            self.angleHead = round(self.angleHead, 0)
+        self.directionHead = pygame.mouse.get_pos() - self.posHead
+        self.radiusHead, self.angleHead = self.directionHead.as_polar()
+        self.angleHead = round(self.angleHead, 0)
 
         # pre calculating rotation
 
@@ -77,13 +84,15 @@ class Player(pygame.sprite.Sprite):
 
 
     def rotateBody(self):
-        if self.canMove:
+        while True:
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_a]:
-                self.directionBody.rotate_ip(-2)
+                self.directionBody.rotate_ip(-1)
+                time.sleep(0.0025)
             if keys[pygame.K_d]:
-                self.directionBody.rotate_ip(2)
+                self.directionBody.rotate_ip(1)
+                time.sleep(0.0025)
 
             if keys[pygame.K_d] or keys[pygame.K_a]:
                 self.isRotating = True
@@ -92,37 +101,46 @@ class Player(pygame.sprite.Sprite):
 
             self.angleBody = round(self.directionBody.angle_to((6, 0)), 2)
 
+            time.sleep(0.017)
+
+    def drawBody(self):
         self.image = pygame.transform.rotate(self.orig_image, self.angleBody)
         self.rect = self.image.get_rect(center = self.rect.center)
         self.mask = pygame.mask.from_surface(self.image)
 
-
     def move(self):
-        keys = pygame.key.get_pressed()
+        while True:
+            keys = pygame.key.get_pressed()
 
-        heading = int(self.directionBody[0]), int(self.directionBody[1])
+            heading = int(self.directionBody[0]), int(self.directionBody[1])
 
-        if keys[pygame.K_w]:
-            self.rect.x += heading[0]
-            self.rect.y += heading[1]
+            if keys[pygame.K_w]:
+                self.rect.x += heading[0]
+                self.rect.y += heading[1]
+                self.animate()
+                time.sleep(0.005)
 
-        if keys[pygame.K_s]:
-            self.rect.x -= heading[0]
-            self.rect.y -= heading[1]
+            if keys[pygame.K_s]:
+                self.rect.x -= heading[0]
+                self.rect.y -= heading[1]
+                self.animate()
+                time.sleep(0.005)
 
+            if keys[pygame.K_w]:
+                self.isMoving = True
+                self.isMovingForward = True
+            elif keys[pygame.K_s]:
+                self.isMoving = True
+                self.isMovingForward = False
+            else:
+                self.isMoving = False
+                self.isMovingForward = None
 
-        if keys[pygame.K_w]:
-            self.isMoving = True
-            self.isMovingForward = True
-        elif keys[pygame.K_s]:
-            self.isMoving = True
-            self.isMovingForward = False
-        else:
-            self.isMoving = False
-            self.isMovingForward = None
+            time.sleep(0.010)
 
     def bounce(self):
         if self.isMovingForward:
+
             heading = int(-self.directionBody[0]), int(-self.directionBody[1])
             self.rect.x += heading[0]
             self.rect.y += heading[1]
@@ -132,44 +150,28 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += heading[1]
 
     def shoot(self):
-        keys = pygame.key.get_pressed()
+        while True:
+            keys = pygame.key.get_pressed()
 
-        checkForCooldown = self.bulletCooldownCheck.calculate(self.bulletCooldown)
-
-        if checkForCooldown and self.canMove:
             if keys[pygame.K_SPACE]:
-                if self.game.online:
-                    self.game.bulletParser()
-                else:
-                    self.createBullet()
-                self.bulletCooldownCheck.reset()
+                self.createBullet()
+                time.sleep(0.1)
+
+            time.sleep(0.010)
 
     def createBullet(self):
         Bullet((self.rect.centerx, self.rect.centery), self.group_projectiles, self.angleHead, self.animation)
-        self.bulletCooldownCheck.reset()
 
     def animate(self):
-        if self.isMoving:
-            self.frame_index += self.animation_speed
-            if self.frame_index >= len(self.frames):
-                self.frame_index = 0
-            else:
-                self.orig_image = self.frames[int(self.frame_index)]
-
-        if not self.canMove:
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(self.frames):
+            self.frame_index = 0
+        else:
             self.orig_image = self.frames[int(self.frame_index)]
 
     def outline(self):
         pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)
 
     def update(self):
-
-
-        self.rotateBody()
+        self.drawBody()
         self.rotateHead()
-
-        if self.canMove:
-            self.move()
-
-        self.shoot()
-        self.animate()

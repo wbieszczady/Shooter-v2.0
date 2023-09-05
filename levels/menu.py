@@ -1,11 +1,9 @@
 import pygame
+import pygame_gui.elements
 import pygame_widgets
 from utilities import NavigationButton, CreateServerButton, JoinGameButton
 from utilities import *
 from gui import Gui
-from pygame_widgets.button import Button
-
-
 
 class MainMenu:
     def __init__(self, game):
@@ -15,7 +13,8 @@ class MainMenu:
         self.game = game
 
 
-        self.widgets = []
+        self.b1 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((30, 30), (300, 80)), text='Singleplayer', manager=game.manager)
+        self.b2 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((30, 120), (300, 80)), text='Multiplayer', manager=game.manager)
 
         # #singleplayer button
         # self.image_singlePlayerNormal = pygame.image.load('assets/menu/singleplayer.png').convert_alpha()
@@ -35,21 +34,7 @@ class MainMenu:
         # self.rect_titlePos = center_position(self.rect_title, 0, -400)
 
     def run(self):
-        self.b1 = Button(win=self.screen, x=0, y=3, width=300, height=80,
-                         onClick=lambda: self.changeLevel('singleplayer'), text='Singleplayer', fontSize=36)
-        self.b2 = Button(win=self.screen, x=0, y=90, width=300, height=80,
-                         onClick=lambda: self.changeLevel('multiplayer'), text='Multiplayer', fontSize=36)
-
-        self.widgets.append(self.b1)
-        self.widgets.append(self.b2)
-
-    def changeLevel(self, lvl):
-        self.game.level = lvl
-
-        for widget in self.widgets:
-            widget.hide()
-
-        self.widgets = []
+        pass
 
 
 

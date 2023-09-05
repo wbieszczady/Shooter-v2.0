@@ -6,7 +6,7 @@ class Box(pygame.sprite.Sprite):
         self.screen = pygame.display.get_surface()
         self.image = pygame.image.load('assets/obstacles/box.png').convert_alpha()
         self.rect = self.image.get_rect(topleft = pos)
-        # self.mask = pygame.mask.from_surface(self.image)
+        self.mask = pygame.mask.from_surface(self.image)
 
     def destroy(self):
         self.kill()
@@ -22,6 +22,7 @@ class Border(pygame.sprite.Sprite):
         self.screen = pygame.display.get_surface()
         self.image = pygame.image.load('assets/obstacles/border.png').convert_alpha()
         self.rect = self.image.get_rect(topleft = pos)
+        self.mask = pygame.mask.from_surface(self.image)
 
     def destroy(self):
         pass

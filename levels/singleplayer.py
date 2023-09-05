@@ -8,6 +8,7 @@ from gui import Gui
 from threading import Thread
 from animation import Animation
 from utilities import NavigationButton
+import multiprocessing
 import cProfile
 
 class Singleplayer:
@@ -23,7 +24,6 @@ class Singleplayer:
         # create sprite groups
         self.group_objects = pygame.sprite.Group()
         self.group_players = pygame.sprite.Group()
-
         self.group_projectiles = pygame.sprite.Group()
 
         self.animation_player = game.animation
@@ -44,19 +44,23 @@ class Singleplayer:
                 if column == 'b':
                     Border((x, y), self.group_objects)
 
-    def collisions(self):
-        if self.group_projectiles:
-            for bullet in self.group_projectiles:
-                for object in self.group_objects:
+
+    def collision(self):
+
+        for object in self.group_objects:
+            for player in self.group_players:
+                if pygame.sprite.collide_mask(player, object):
+                    player.bounce()
+                    break
+
+        for bullet in self.group_projectiles:
+            for object in self.group_objects:
+                try:
                     if pygame.sprite.collide_rect(bullet, object):
                         object.destroy()
                         bullet.kill()
-
-        for player in self.group_players:
-            for object in self.group_objects:
-                if pygame.sprite.collide_mask(object, player):
-                    player.bounce()
-                    break
+                except Exception as ex:
+                    print(ex, bullet, object)
 
     def run(self):
 
@@ -65,17 +69,15 @@ class Singleplayer:
         self.screen.blit(self.background, (0, 0))
 
         #drawing sprites
-
-        self.group_objects.draw(self.screen)
-        self.group_objects.update()
-
-        self.group_projectiles.draw(self.screen)
-        self.group_projectiles.update()
+        try:
+            self.group_projectiles.draw(self.screen)
+        except:
+            pass
 
         self.group_players.draw(self.screen)
         self.group_players.update()
 
-        #check for collisions
+        self.group_objects.draw(self.screen)
+        self.group_objects.update()
 
-        self.collisions()
-
+        self.collision()

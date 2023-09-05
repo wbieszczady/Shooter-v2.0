@@ -13,5 +13,5 @@ class Gui:
 
 
     def show(self):
-        self.mouse_pos = pygame.mouse.get_pos()
-        self.screen.blit(self.image_cursor, (self.mouse_pos[0] - 32, self.mouse_pos[1] - 32))
+        pos = pygame.mouse.get_pos()
+        self.screen.blit(self.image_cursor, (pos[0] - 32, pos[1] - 32))
