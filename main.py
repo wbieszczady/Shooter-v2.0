@@ -71,13 +71,13 @@ class Game:
         self.manager.update(1)
         self.manager.draw_ui(self.screen)
 
-
     def loadLevel(self, lvl):
 
         match lvl:
 
             case 'mainMenu':
                 try:
+                    self.singleplayer.clear()
                     del self.singleplayer
                 except:
                     pass

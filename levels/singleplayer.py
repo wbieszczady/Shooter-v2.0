@@ -62,6 +62,11 @@ class Singleplayer:
                 except Exception as ex:
                     print(ex, bullet, object)
 
+
+    def clear(self):
+        for player in self.group_players:
+            player.kill()
+
     def run(self):
 
         #drawing background

@@ -51,7 +51,7 @@ class Player(pygame.sprite.Sprite):
 
         self.animation = game.animation_player
         self.frame_index = 0
-        self.animation_speed = 0.45
+        self.animation_speed = 0.1
         self.frames = self.animation.animation_player_move(index)
 
         #player projectiles
@@ -67,6 +67,22 @@ class Player(pygame.sprite.Sprite):
         shootListener = Thread(target=self.shoot, daemon=True)
         shootListener.start()
 
+        bulletHandler = Thread(target=self.handler, daemon=True)
+        bulletHandler.start()
+
+        self.bullet = {}
+
+    def handler(self):
+
+        while self.alive():
+
+            for bullet in self.group_projectiles:
+                try:
+                    bullet.update()
+                except:
+                    pass
+
+            time.sleep(0.015)
 
     def rotateHead(self):
 
@@ -81,17 +97,17 @@ class Player(pygame.sprite.Sprite):
         preRotation = self.preRotation[self.angleHead]
         self.rectHead = preRotation.get_rect(center=(self.rect.centerx, self.rect.centery))
         self.screen.blit(preRotation, self.rectHead)
-
-
     def rotateBody(self):
-        while True:
+
+        while self.alive():
+
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_a]:
-                self.directionBody.rotate_ip(-1)
+                self.directionBody.rotate_ip(-2)
                 time.sleep(0.0025)
             if keys[pygame.K_d]:
-                self.directionBody.rotate_ip(1)
+                self.directionBody.rotate_ip(2)
                 time.sleep(0.0025)
 
             if keys[pygame.K_d] or keys[pygame.K_a]:
@@ -101,15 +117,14 @@ class Player(pygame.sprite.Sprite):
 
             self.angleBody = round(self.directionBody.angle_to((6, 0)), 2)
 
-            time.sleep(0.017)
-
+            time.sleep(0.015)
     def drawBody(self):
         self.image = pygame.transform.rotate(self.orig_image, self.angleBody)
         self.rect = self.image.get_rect(center = self.rect.center)
         self.mask = pygame.mask.from_surface(self.image)
 
     def move(self):
-        while True:
+        while self.alive():
             keys = pygame.key.get_pressed()
 
             heading = int(self.directionBody[0]), int(self.directionBody[1])
@@ -117,13 +132,11 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_w]:
                 self.rect.x += heading[0]
                 self.rect.y += heading[1]
-                self.animate()
                 time.sleep(0.005)
 
             if keys[pygame.K_s]:
                 self.rect.x -= heading[0]
                 self.rect.y -= heading[1]
-                self.animate()
                 time.sleep(0.005)
 
             if keys[pygame.K_w]:
@@ -136,7 +149,7 @@ class Player(pygame.sprite.Sprite):
                 self.isMoving = False
                 self.isMovingForward = None
 
-            time.sleep(0.010)
+            time.sleep(0.015)
 
     def bounce(self):
         if self.isMovingForward:
@@ -150,28 +163,30 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += heading[1]
 
     def shoot(self):
-        while True:
+        while self.alive():
             keys = pygame.key.get_pressed()
 
             if keys[pygame.K_SPACE]:
                 self.createBullet()
-                time.sleep(0.1)
-
-            time.sleep(0.010)
+                time.sleep(0.01)
+            else:
+                time.sleep(0.015)
 
     def createBullet(self):
-        Bullet((self.rect.centerx, self.rect.centery), self.group_projectiles, self.angleHead, self.animation)
+        Bullet(self, (self.rect.centerx, self.rect.centery), self.group_projectiles, self.angleHead, self.animation)
 
     def animate(self):
-        self.frame_index += self.animation_speed
-        if self.frame_index >= len(self.frames):
-            self.frame_index = 0
-        else:
-            self.orig_image = self.frames[int(self.frame_index)]
+        if self.isMoving:
+            self.frame_index += self.animation_speed
+            if self.frame_index >= len(self.frames):
+                self.frame_index = 0
+            else:
+                self.orig_image = self.frames[int(self.frame_index)]
 
     def outline(self):
         pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)
 
     def update(self):
+        self.animate()
         self.drawBody()
         self.rotateHead()
