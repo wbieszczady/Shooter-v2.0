@@ -29,6 +29,8 @@ class Game:
         self.HEIGHT = info.current_h/2
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
 
+        # gui
+
         self.gui = Gui()
         self.manager = pygame_gui.UIManager((self.WIDTH, self.HEIGHT))
 
@@ -36,7 +38,7 @@ class Game:
 
         self.animation = Animation()
 
-        # controls
+        # navigation
 
         self.level = 'mainMenu'
         self.mainMenu = MainMenu(self)
@@ -64,6 +66,11 @@ class Game:
                 if event.ui_element == self.mainMenu.b2:
 
                     self.loadLevel('multiplayer')
+
+                if event.ui_element == self.mainMenu.ex:
+
+                    pygame.quit()
+                    sys.exit()
 
 
             self.manager.process_events(event)
@@ -125,9 +132,9 @@ class Game:
 
             pygame.display.update()
 
-            print(self.clock.get_fps())
+            #print(self.clock.get_fps())
 
-            print(threading.active_count())
+            #print(threading.active_count())
 
             self.clock.tick()
 

@@ -15,23 +15,7 @@ class MainMenu:
 
         self.b1 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((30, 30), (300, 80)), text='Singleplayer', manager=game.manager)
         self.b2 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((30, 120), (300, 80)), text='Multiplayer', manager=game.manager)
-
-        # #singleplayer button
-        # self.image_singlePlayerNormal = pygame.image.load('assets/menu/singleplayer.png').convert_alpha()
-        # self.image_singlePlayerHover = pygame.image.load('assets/menu/singleplayer_hover.png').convert_alpha()
-        # self.rect_singlePlayer = self.image_singlePlayerNormal.get_rect()
-        # self.rect_singlePlayerPos = center_position(self.rect_singlePlayer)
-        #
-        # # multiplayer button
-        # self.image_multiPlayerNormal = pygame.image.load('assets/menu/multiplayer.png').convert_alpha()
-        # self.image_multiPlayerHover = pygame.image.load('assets/menu/multiplayer_hover.png').convert_alpha()
-        # self.rect_multiPlayer = self.image_multiPlayerNormal.get_rect()
-        # self.rect_multiPlayerPos = center_position(self.rect_multiPlayer, 0, 120)
-        #
-        # #title
-        # self.image_title = pygame.image.load('assets/menu/title.png').convert_alpha()
-        # self.rect_title = self.image_title.get_rect()
-        # self.rect_titlePos = center_position(self.rect_title, 0, -400)
+        self.ex = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((30, 600), (300, 80)), text='Exit', manager=game.manager)
 
     def run(self):
         pass

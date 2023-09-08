@@ -5,6 +5,7 @@ from pygame import Vector2
 from projectile import Bullet
 from settings import *
 from threading import Thread
+import multiprocessing
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, pos, index=0):
@@ -13,6 +14,7 @@ class Player(pygame.sprite.Sprite):
         #common attributes
 
         self.screen = pygame.display.get_surface()
+
         self.group_projectiles = game.group_projectiles
 
         self.isMoving = False
@@ -51,11 +53,11 @@ class Player(pygame.sprite.Sprite):
 
         self.animation = game.animation_player
         self.frame_index = 0
-        self.animation_speed = 0.1
+        self.animation_speed = 0.05
         self.frames = self.animation.animation_player_move(index)
 
         #player projectiles
-        self.bulletCooldown = 10 # [ms]
+        self.bulletCooldown = 0.1 # [seconds]
 
         #listener
         moveListener = Thread(target=self.move, daemon=True)
@@ -82,7 +84,7 @@ class Player(pygame.sprite.Sprite):
                 except:
                     pass
 
-            time.sleep(0.015)
+            time.sleep(0.010)
 
     def rotateHead(self):
 
@@ -92,11 +94,15 @@ class Player(pygame.sprite.Sprite):
         self.radiusHead, self.angleHead = self.directionHead.as_polar()
         self.angleHead = round(self.angleHead, 0)
 
+        x, y = pygame.mouse.get_pos()
+
         # pre calculating rotation
 
         preRotation = self.preRotation[self.angleHead]
         self.rectHead = preRotation.get_rect(center=(self.rect.centerx, self.rect.centery))
         self.screen.blit(preRotation, self.rectHead)
+
+
     def rotateBody(self):
 
         while self.alive():
@@ -105,10 +111,13 @@ class Player(pygame.sprite.Sprite):
 
             if keys[pygame.K_a]:
                 self.directionBody.rotate_ip(-2)
-                time.sleep(0.0025)
-            if keys[pygame.K_d]:
+                time.sleep(0.01)
+            elif keys[pygame.K_d]:
                 self.directionBody.rotate_ip(2)
-                time.sleep(0.0025)
+                time.sleep(0.01)
+            else:
+                time.sleep(0.010)
+
 
             if keys[pygame.K_d] or keys[pygame.K_a]:
                 self.isRotating = True
@@ -116,8 +125,6 @@ class Player(pygame.sprite.Sprite):
                 self.isRotating = False
 
             self.angleBody = round(self.directionBody.angle_to((6, 0)), 2)
-
-            time.sleep(0.015)
     def drawBody(self):
         self.image = pygame.transform.rotate(self.orig_image, self.angleBody)
         self.rect = self.image.get_rect(center = self.rect.center)
@@ -149,7 +156,7 @@ class Player(pygame.sprite.Sprite):
                 self.isMoving = False
                 self.isMovingForward = None
 
-            time.sleep(0.015)
+            time.sleep(0.010)
 
     def bounce(self):
         if self.isMovingForward:
@@ -168,9 +175,9 @@ class Player(pygame.sprite.Sprite):
 
             if keys[pygame.K_SPACE]:
                 self.createBullet()
-                time.sleep(0.01)
+                time.sleep(self.bulletCooldown)
             else:
-                time.sleep(0.015)
+                time.sleep(0.010)
 
     def createBullet(self):
         Bullet(self, (self.rect.centerx, self.rect.centery), self.group_projectiles, self.angleHead, self.animation)

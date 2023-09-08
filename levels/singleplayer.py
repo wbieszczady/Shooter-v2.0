@@ -40,10 +40,9 @@ class Singleplayer:
                 if column == 'x':
                     Box((x, y), self.group_objects)
                 if column == 'p':
-                    player = Player(self, (x, y))
+                    Player(self, (x, y))
                 if column == 'b':
                     Border((x, y), self.group_objects)
-
 
     def collision(self):
 
