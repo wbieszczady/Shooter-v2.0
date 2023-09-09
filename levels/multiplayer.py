@@ -1,5 +1,4 @@
 import pygame
-from utilities import NavigationButton
 from utilities import *
 from animation import Animation
 from settings import *

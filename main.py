@@ -31,7 +31,7 @@ class Game:
 
         # gui
 
-        self.gui = Gui()
+        self.gui = Gui(self)
         self.manager = pygame_gui.UIManager((self.WIDTH, self.HEIGHT))
 
         # resources
@@ -83,6 +83,7 @@ class Game:
         match lvl:
 
             case 'mainMenu':
+
                 try:
                     self.singleplayer.clear()
                     del self.singleplayer

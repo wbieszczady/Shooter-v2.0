@@ -1,7 +1,6 @@
 import pygame
 import pygame_gui.elements
 import pygame_widgets
-from utilities import NavigationButton, CreateServerButton, JoinGameButton
 from utilities import *
 from gui import Gui
 
