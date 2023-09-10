@@ -35,11 +35,11 @@ class Singleplayer:
                 y = row_index * TILESIZE
 
                 if column == 'x':
-                    Box((x, y), self.group_objects)
+                    Box(self, (x, y))
                 if column == 'p':
                     Player(self, (x, y))
                 if column == 'b':
-                    Border((x, y), self.group_objects)
+                    Border(self, (x, y))
 
     def clear(self):
         for player in self.group_players:
@@ -59,10 +59,8 @@ class Singleplayer:
         except:
             pass
 
-
         self.group_players.update()
-
-        self.group_objects.update(self.offset)
+        self.group_objects.update()
 
         # collisions
 
@@ -74,7 +72,7 @@ class Singleplayer:
             for object in self.group_objects:
                 try:
                     if pygame.sprite.collide_rect(bullet, object):
-                        object.destroy()
                         bullet.kill()
+                        object.destroy()
                 except Exception as ex:
                     print(ex, bullet, object)

@@ -94,13 +94,16 @@ class Game:
                     del self.multiplayer
                 except:
                     pass
+                self.mainMenu.show()
 
             case 'singleplayer':
 
+                self.mainMenu.clear()
                 self.singleplayer = Singleplayer(self)
 
             case 'multiplayer':
 
+                self.mainMenu.clear()
                 self.multiplayer = Multiplayer(self)
 
         self.level = lvl

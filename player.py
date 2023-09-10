@@ -2,7 +2,7 @@ import pygame, math
 from time import time
 import time
 from pygame import Vector2
-from projectile import Rocket
+from projectile import Rocket, Bullet
 from settings import *
 from threading import Thread
 import multiprocessing
@@ -59,7 +59,8 @@ class Player(pygame.sprite.Sprite):
         self.frames = self.animation.animation_player_move(index)
 
         #player projectiles
-        self.rocketCooldown = 0.1 # [seconds]
+        self.rocketCooldown = 1 # [seconds]
+        self.bulletCooldown = 0.05
 
         #listeners
 
@@ -69,13 +70,17 @@ class Player(pygame.sprite.Sprite):
         rotateListener = Thread(target=self.rotateBody, daemon=True)
         rotateListener.start()
 
-        shootListener = Thread(target=self.shoot, daemon=True)
-        shootListener.start()
+        bulletListener = Thread(target=self.shootBullet, daemon=True)
+        bulletListener.start()
 
-        bulletHandler = Thread(target=self.handler, daemon=True)
-        bulletHandler.start()
+        rocketListener = Thread(target=self.shootRocket, daemon=True)
+        rocketListener.start()
 
-    def handler(self):
+        proHandler = Thread(target=self.projectileHandler, daemon=True)
+        proHandler.start()
+
+
+    def projectileHandler(self):
 
         while self.alive():
 
@@ -206,7 +211,20 @@ class Player(pygame.sprite.Sprite):
             self.game.offset[0] -= heading[0]
             self.game.offset[1] -= heading[1]
 
-    def shoot(self):
+    def shootBullet(self):
+        while self.alive():
+            keys = pygame.key.get_pressed()
+
+            if keys[pygame.K_e]:
+                self.createBullet()
+                time.sleep(self.bulletCooldown)
+            else:
+                time.sleep(0.010)
+
+    def createBullet(self):
+        Bullet(self, 30)
+
+    def shootRocket(self):
         while self.alive():
             keys = pygame.key.get_pressed()
 
@@ -217,7 +235,7 @@ class Player(pygame.sprite.Sprite):
                 time.sleep(0.010)
 
     def createRocket(self):
-        Rocket(self, 20)
+        Rocket(self, 10)
 
     def animate(self):
         if self.isMoving:
@@ -232,6 +250,7 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(self.screen, (255, 255, 255), self.rectHead, 3, border_radius=1)
 
     def customDraw(self):
+
         offset = self.game.offset
 
         self.screen.blit(self.image, (self.rect.topleft[0] + offset[0], self.rect.topleft[1] + offset[1]))

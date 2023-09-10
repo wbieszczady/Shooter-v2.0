@@ -16,9 +16,19 @@ class MainMenu:
         self.b2 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((30, 120), (300, 80)), text='Multiplayer', manager=game.manager)
         self.ex = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((30, 600), (300, 80)), text='Exit', manager=game.manager)
 
+
     def run(self):
         pass
 
+    def clear(self):
+        self.b1.hide()
+        self.b2.hide()
+        self.ex.hide()
+
+    def show(self):
+        self.b1.show()
+        self.b2.show()
+        self.ex.show()
 
 
 class Lobby:
@@ -30,7 +40,6 @@ class Lobby:
         self.screen = pygame.display.get_surface()
         self.level = level
         self.stage = 1
-
 
         #create server button
         self.image_create = pygame.image.load('assets/menu/createLobby.png').convert_alpha()
