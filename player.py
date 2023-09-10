@@ -193,12 +193,18 @@ class Player(pygame.sprite.Sprite):
             self.posx += heading[0]
             self.posy += heading[1]
 
+            self.game.offset[0] -= heading[0]
+            self.game.offset[1] -= heading[1]
+
         elif self.isMovingForward == False:
 
             heading =  round(self.directionBody[0], 4),  round(self.directionBody[1], 4)
 
             self.posx += heading[0]
             self.posy += heading[1]
+
+            self.game.offset[0] -= heading[0]
+            self.game.offset[1] -= heading[1]
 
     def shoot(self):
         while self.alive():
@@ -211,7 +217,7 @@ class Player(pygame.sprite.Sprite):
                 time.sleep(0.010)
 
     def createRocket(self):
-        Rocket(self, 2)
+        Rocket(self, 20)
 
     def animate(self):
         if self.isMoving:

@@ -9,6 +9,8 @@ class Rocket(pygame.sprite.Sprite):
 
         self.screen = pygame.display.get_surface()
 
+        self.player = player
+
         self.radians = math.radians(player.angleHead)
         self.heading = [math.cos(self.radians), math.sin(self.radians)]
 
@@ -33,6 +35,11 @@ class Rocket(pygame.sprite.Sprite):
 
     def outline(self):
         pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)
+
+    def customDraw(self):
+        offs = (self.player.game.offset[0], self.player.game.offset[1])
+
+        self.screen.blit(self.image, (self.rect.x + offs[0], self.rect.y + offs[1]))
 
     def update(self):
         vecx, vecy = self.heading[0] * self.speed, self.heading[1] * self.speed

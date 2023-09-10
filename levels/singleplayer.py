@@ -54,7 +54,8 @@ class Singleplayer:
         # drawing sprites
 
         try:
-            self.group_projectiles.draw(self.screen)
+            for projectile in self.group_projectiles:
+                projectile.customDraw()
         except:
             pass
 

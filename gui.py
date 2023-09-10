@@ -4,6 +4,8 @@ import pygame
 class Gui:
     def __init__(self, game):
 
+        #TODO make buttons go away on level start
+
         #common
         self.screen = pygame.display.get_surface()
         self.game = game
