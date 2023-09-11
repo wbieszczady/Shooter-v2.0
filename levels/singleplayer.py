@@ -68,11 +68,16 @@ class Singleplayer:
 
     def collision(self):
 
+        #TODO something with this collisions is not right
+
         for bullet in self.group_projectiles:
             for object in self.group_objects:
                 try:
                     if pygame.sprite.collide_rect(bullet, object):
                         bullet.kill()
                         object.destroy()
+                        break
+                        break
+
                 except Exception as ex:
                     print(ex, bullet, object)

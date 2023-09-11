@@ -6,9 +6,10 @@ from projectile import Rocket, Bullet
 from settings import *
 from threading import Thread
 import multiprocessing
+import keyboard
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, game, pos, index=0):
+    def __init__(self, game, pos, index=3):
         super().__init__(game.group_players)
 
         #common attributes
@@ -60,7 +61,7 @@ class Player(pygame.sprite.Sprite):
 
         #player projectiles
         self.rocketCooldown = 1 # [seconds]
-        self.bulletCooldown = 0.05
+        self.bulletCooldown = 0.01
 
         #listeners
 
@@ -79,6 +80,7 @@ class Player(pygame.sprite.Sprite):
         proHandler = Thread(target=self.projectileHandler, daemon=True)
         proHandler.start()
 
+        self.input = Input()
 
     def projectileHandler(self):
 
@@ -116,6 +118,7 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_a]:
                 self.directionBody.rotate_ip(-1)
                 time.sleep(0.005)
+                #print(self.input.data.value)
             elif keys[pygame.K_d]:
                 self.directionBody.rotate_ip(1)
                 time.sleep(0.005)
@@ -260,3 +263,24 @@ class Player(pygame.sprite.Sprite):
         self.updateBody()
         self.rotateHead()
         self.customDraw()
+
+
+class Input:
+
+    def __init__(self):
+
+        self.data = multiprocessing.Value('i', 0)
+
+        self.process = multiprocessing.Process(target=self.inp, args=(self.data, ))
+        self.process.start()
+
+    def inp(self, data):
+        while True:
+            if keyboard.is_pressed('b'):
+                data.value += 1
+
+                print(data.value)
+
+            time.sleep(0.1)
+
+

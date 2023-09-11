@@ -140,7 +140,7 @@ class Game:
 
             #print(threading.active_count())
 
-            self.clock.tick()
+            self.clock.tick(60)
 
 
 if __name__ == '__main__':

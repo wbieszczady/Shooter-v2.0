@@ -59,8 +59,10 @@ class Bullet(pygame.sprite.Sprite):
 
         self.player = player
 
+        self.spread = 0.4
+
         self.radians = math.radians(player.angleHead)
-        self.heading = [math.cos(self.radians) + random.uniform(-0.4, 0.4), math.sin(self.radians) + random.uniform(-0.4, 0.4)]
+        self.heading = [math.cos(self.radians) + random.uniform(-self.spread, self.spread), math.sin(self.radians) + random.uniform(-self.spread, self.spread)]
 
         self.speed = speed
 
@@ -78,22 +80,29 @@ class Bullet(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.frames[int(self.frame_index)], -angle)
 
         # adj
-        adx, ady = math.cos(self.radians) * 70, math.sin(self.radians) * 70
+        self.adx, self.ady = math.cos(self.radians) * 70, math.sin(self.radians) * 70
 
-        self.rect = self.image.get_rect(center=(player.rect.centerx + adx, player.rect.centery + ady))
+        self.rect = self.image.get_rect(center=(player.rect.centerx + self.adx, player.rect.centery + self.ady))
+
+        self.outline_pos = self.rect.x, self.rect.y
 
         # float pos setup
         self.posx, self.posy = self.rect.x, self.rect.y
 
     def outline(self):
-        pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)
+        offs = (self.player.game.offset[0], self.player.game.offset[1])
+
+        pygame.draw.line(self.screen, (255, 255, 255), (self.outline_pos[0] + offs[0], self.outline_pos[1] + offs[1]), (self.posx + offs[0], self.posy + offs[1]))
 
     def customDraw(self):
         offs = (self.player.game.offset[0], self.player.game.offset[1])
 
         self.screen.blit(self.image, (self.rect.x + offs[0], self.rect.y + offs[1]))
 
+        self.outline()
+
     def update(self):
+
         vecx, vecy = self.heading[0] * self.speed, self.heading[1] * self.speed
 
         self.posx += round(vecx, 4)
