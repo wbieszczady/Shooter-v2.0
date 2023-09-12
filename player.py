@@ -56,12 +56,8 @@ class Player(pygame.sprite.Sprite):
 
         self.animation = game.animation_player
         self.frame_index = 0
-        self.animation_speed = 0.1
+        self.animation_speed = 0.3
         self.frames = self.animation.animation_player_move(index)
-
-        #player projectiles
-        self.rocketCooldown = 1 # [seconds]
-        self.bulletCooldown = 0.01
 
         #listeners
 
@@ -80,7 +76,7 @@ class Player(pygame.sprite.Sprite):
                 except:
                     pass
 
-            time.sleep(0.1)
+            time.sleep(0.01)
 
     def rotateHead(self):
 
@@ -126,6 +122,8 @@ class Player(pygame.sprite.Sprite):
         self.game.offset[0] -= heading[0]
         self.game.offset[1] -= heading[1]
 
+        self.animate()
+
 
     def moveBackward(self):
 
@@ -143,6 +141,8 @@ class Player(pygame.sprite.Sprite):
 
         self.game.offset[0] += heading[0]
         self.game.offset[1] += heading[1]
+
+        self.animate()
 
     def canMove(self):
 
@@ -187,12 +187,11 @@ class Player(pygame.sprite.Sprite):
         Rocket(self, 10)
 
     def animate(self):
-        if self.isMoving:
-            self.frame_index += self.animation_speed
-            if self.frame_index >= len(self.frames):
-                self.frame_index = 0
-            else:
-                self.orig_image = self.frames[int(self.frame_index)]
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(self.frames):
+            self.frame_index = 0
+        else:
+            self.orig_image = self.frames[int(self.frame_index)]
 
     def customDraw(self):
 
@@ -294,7 +293,7 @@ class Input:
             if keyboard.is_pressed('e'):
                 shootE.value += 1
 
-            if keyboard.is_pressed('space') and nTime > 0.5:
+            if keyboard.is_pressed('space') and nTime > 2:
                 shootSPACE.value += 1
                 bTime = time.time()
 
