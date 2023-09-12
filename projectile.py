@@ -59,7 +59,7 @@ class Bullet(pygame.sprite.Sprite):
 
         self.player = player
 
-        self.spread = 0.4
+        self.spread = 0.0
 
         self.radians = math.radians(player.angleHead)
         self.heading = [math.cos(self.radians) + random.uniform(-self.spread, self.spread), math.sin(self.radians) + random.uniform(-self.spread, self.spread)]

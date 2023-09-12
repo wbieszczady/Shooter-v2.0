@@ -6,6 +6,7 @@ from projectile import Rocket, Bullet
 from settings import *
 from threading import Thread
 import multiprocessing
+import ctypes
 import keyboard
 
 class Player(pygame.sprite.Sprite):
@@ -18,8 +19,7 @@ class Player(pygame.sprite.Sprite):
 
         self.group_projectiles = game.group_projectiles
 
-        self.isMoving = False
-        self.isRotating = False
+        self.isColliding = False
         self.isMovingForward = False
 
         self.game = game
@@ -34,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         self.directionBody = Vector2(0, -6)
-        self.angleBody = 0
+        self.angleBody = 90
 
         self.posx, self.posy = self.rect.centerx, self.rect.centery
 
@@ -65,18 +65,6 @@ class Player(pygame.sprite.Sprite):
 
         #listeners
 
-        moveListener = Thread(target=self.move, daemon=True)
-        moveListener.start()
-
-        rotateListener = Thread(target=self.rotateBody, daemon=True)
-        rotateListener.start()
-
-        bulletListener = Thread(target=self.shootBullet, daemon=True)
-        bulletListener.start()
-
-        rocketListener = Thread(target=self.shootRocket, daemon=True)
-        rocketListener.start()
-
         proHandler = Thread(target=self.projectileHandler, daemon=True)
         proHandler.start()
 
@@ -92,7 +80,7 @@ class Player(pygame.sprite.Sprite):
                 except:
                     pass
 
-            time.sleep(0.01)
+            time.sleep(0.1)
 
     def rotateHead(self):
 
@@ -109,91 +97,69 @@ class Player(pygame.sprite.Sprite):
         self.pr = self.preRotation[self.angleHead]
         self.rectHead = self.pr.get_rect(center=(self.rect.centerx, self.rect.centery))
 
-    def rotateBody(self):
+    def rotateBody(self, direction):
 
-        while self.alive():
+        if not self.isColliding:
 
-            keys = pygame.key.get_pressed()
+            if direction == 'left':
+                self.directionBody.rotate_ip(-2)
 
-            if keys[pygame.K_a]:
-                self.directionBody.rotate_ip(-1)
-                time.sleep(0.005)
-                #print(self.input.data.value)
-            elif keys[pygame.K_d]:
-                self.directionBody.rotate_ip(1)
-                time.sleep(0.005)
-            else:
-                time.sleep(0.01)
-
-
-            if keys[pygame.K_d] or keys[pygame.K_a]:
-                self.isRotating = True
-            else:
-                self.isRotating = False
+            if direction == 'right':
+                self.directionBody.rotate_ip(2)
 
             self.angleBody = round(self.directionBody.angle_to((6, 0)), 2)
 
-    def updateBody(self):
-        self.image = pygame.transform.rotate(self.orig_image, self.angleBody)
-        self.rect = self.image.get_rect(center = self.rect.center)
-        self.mask = pygame.mask.from_surface(self.image)
+    def moveForward(self):
 
-    def move(self):
-        while self.alive():
-            keys = pygame.key.get_pressed()
+        self.canMove()
 
-            heading = round(self.directionBody[0], 4), round(self.directionBody[1], 4)
+        self.isMovingForward = True
 
-            if keys[pygame.K_w]:
+        heading = round(self.directionBody[0], 4), round(self.directionBody[1], 4)
 
-                self.posx += heading[0]
-                self.posy += heading[1]
+        self.posx += heading[0]
+        self.posy += heading[1]
 
-                self.rect.centerx = self.posx
-                self.rect.centery = self.posy
+        self.rect.centerx = self.posx
+        self.rect.centery = self.posy
 
-                self.game.offset[0] -= heading[0]
-                self.game.offset[1] -= heading[1]
-                # self.animate()
-                time.sleep(0.0025)
-
-            if keys[pygame.K_s]:
-
-                self.posx -= heading[0]
-                self.posy -= heading[1]
-
-                self.rect.centerx = self.posx
-                self.rect.centery = self.posy
-
-                self.game.offset[0] += heading[0]
-                self.game.offset[1] += heading[1]
-                # self.animate()
-                time.sleep(0.0025)
+        self.game.offset[0] -= heading[0]
+        self.game.offset[1] -= heading[1]
 
 
-            if keys[pygame.K_w]:
-                self.isMoving = True
-                self.isMovingForward = True
-            elif keys[pygame.K_s]:
-                self.isMoving = True
-                self.isMovingForward = False
-            else:
-                self.isMoving = False
-                self.isMovingForward = None
+    def moveBackward(self):
 
+        self.canMove()
 
+        self.isMovingForward = False
 
-            for tile in self.game.group_objects:
-                try:
-                    if pygame.sprite.collide_mask(tile, self):
-                        self.bounce()
-                        break
-                except:
-                    print(tile, self)
+        heading = round(self.directionBody[0], 4), round(self.directionBody[1], 4)
 
-            time.sleep(0.010)
+        self.posx -= heading[0]
+        self.posy -= heading[1]
+
+        self.rect.centerx = self.posx
+        self.rect.centery = self.posy
+
+        self.game.offset[0] += heading[0]
+        self.game.offset[1] += heading[1]
+
+    def canMove(self):
+
+        for tile in self.game.group_objects:
+            try:
+                if pygame.sprite.collide_mask(tile, self):
+                    self.isColliding = True
+                    self.bounce()
+                    break
+                else:
+                    self.isColliding = False
+            except:
+                print(tile, self)
+
 
     def bounce(self):
+
         if self.isMovingForward:
 
             heading = round(-self.directionBody[0], 4), round(-self.directionBody[1], 4)
@@ -215,29 +181,9 @@ class Player(pygame.sprite.Sprite):
             self.game.offset[1] -= heading[1]
 
     def shootBullet(self):
-        while self.alive():
-            keys = pygame.key.get_pressed()
-
-            if keys[pygame.K_e]:
-                self.createBullet()
-                time.sleep(self.bulletCooldown)
-            else:
-                time.sleep(0.010)
-
-    def createBullet(self):
         Bullet(self, 30)
 
     def shootRocket(self):
-        while self.alive():
-            keys = pygame.key.get_pressed()
-
-            if keys[pygame.K_SPACE]:
-                self.createRocket()
-                time.sleep(self.rocketCooldown)
-            else:
-                time.sleep(0.010)
-
-    def createRocket(self):
         Rocket(self, 10)
 
     def animate(self):
@@ -248,19 +194,61 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.orig_image = self.frames[int(self.frame_index)]
 
-    def outline(self):
-        pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)
-        pygame.draw.rect(self.screen, (255, 255, 255), self.rectHead, 3, border_radius=1)
-
     def customDraw(self):
+
+        self.image = pygame.transform.rotate(self.orig_image, self.angleBody)
+        self.rect = self.image.get_rect(center=self.rect.center)
+        self.mask = pygame.mask.from_surface(self.image)
 
         offset = self.game.offset
 
         self.screen.blit(self.image, (self.rect.topleft[0] + offset[0], self.rect.topleft[1] + offset[1]))
         self.screen.blit(self.pr, (self.rectHead.x + offset[0], self.rectHead.y + offset[1]))
 
+    def inputHandler(self):
+
+        if not self.input.forward.value == 0:
+
+            for _ in range(self.input.forward.value):
+                self.moveForward()
+            self.input.forward.value = 0
+
+
+        if not self.input.backward.value == 0:
+
+            for _ in range(self.input.backward.value):
+                self.moveBackward()
+            self.input.backward.value = 0
+
+
+        if not self.input.rotateLeft.value == 0:
+
+            for _ in range(self.input.rotateLeft.value):
+                self.rotateBody('left')
+            self.input.rotateLeft.value = 0
+
+
+        if not self.input.rotateRight.value == 0:
+
+            for _ in range(self.input.rotateRight.value):
+                self.rotateBody('right')
+            self.input.rotateRight.value = 0
+
+        if not self.input.shootE.value == 0:
+
+            for _ in range(self.input.shootE.value):
+                self.shootBullet()
+            self.input.shootE.value = 0
+
+        if not self.input.shootSPACE.value == 0:
+
+            for _ in range(self.input.shootSPACE.value):
+                self.shootRocket()
+            self.input.shootSPACE.value = 0
+
+
     def update(self):
-        self.updateBody()
+        self.inputHandler()
         self.rotateHead()
         self.customDraw()
 
@@ -269,18 +257,49 @@ class Input:
 
     def __init__(self):
 
-        self.data = multiprocessing.Value('i', 0)
+        self.alive = multiprocessing.Value('i', 1)
 
-        self.process = multiprocessing.Process(target=self.inp, args=(self.data, ))
-        self.process.start()
+        self.forward = multiprocessing.Value('i', 0)
+        self.backward = multiprocessing.Value('i', 0)
 
-    def inp(self, data):
-        while True:
-            if keyboard.is_pressed('b'):
-                data.value += 1
+        self.rotateLeft = multiprocessing.Value('i', 0)
+        self.rotateRight = multiprocessing.Value('i', 0)
 
-                print(data.value)
+        self.shootE = multiprocessing.Value('i', 0)
+        self.shootSPACE = multiprocessing.Value('i', 0)
 
-            time.sleep(0.1)
+        self.movementProcess = multiprocessing.Process(target=self.movement, args=(self.alive, self.forward, self.backward, self.rotateLeft, self.rotateRight, self.shootE, self.shootSPACE))
+        self.movementProcess.start()
+
+    def movement(self, alive, forward, backward, rotateL, rotateR, shootE, shootSPACE):
+
+        bTime = time.time()
+
+        while alive.value == 1:
+
+            nTime = time.time() - bTime
+
+            if keyboard.is_pressed('w'):
+                forward.value += 1
+
+            if keyboard.is_pressed('s'):
+                backward.value += 1
+
+            if keyboard.is_pressed('a'):
+                rotateL.value += 1
+
+            if keyboard.is_pressed('d'):
+                rotateR.value += 1
+
+            if keyboard.is_pressed('e'):
+                shootE.value += 1
+
+            if keyboard.is_pressed('space') and nTime > 0.5:
+                shootSPACE.value += 1
+                bTime = time.time()
+
+            time.sleep(0.01)
+
+
 
 

@@ -43,6 +43,7 @@ class Singleplayer:
 
     def clear(self):
         for player in self.group_players:
+            player.input.alive.value = 0
             player.kill()
 
     def run(self):
