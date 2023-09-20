@@ -1,6 +1,7 @@
 import math, time, pygame, random
 from animation import Animation
 from threading import Thread
+from particle import Trail
 
 class Rocket(pygame.sprite.Sprite):
     def __init__(self, player, speed):
@@ -55,51 +56,56 @@ class Bullet(pygame.sprite.Sprite):
 
         super().__init__(player.group_projectiles)
 
+        # general variables
+
         self.screen = pygame.display.get_surface()
-
         self.player = player
-
-        self.spread = 0.4
-
-        self.radians = math.radians(player.angleHead)
-        self.heading = [math.cos(self.radians) + random.uniform(-self.spread, self.spread), math.sin(self.radians) + random.uniform(-self.spread, self.spread)]
-
+        self.spread = 0.1
         self.speed = speed
 
-        #projectile animation
+        # projectile animation
+
         self.frame_index = 0
         self.animation_speed = 0.45
         self.frames = player.animation.animation_player_bullet()
 
-        #spread
+        # projectile heading vector
+
+        self.radians = math.radians(player.angleHead)
+        self.heading = [math.cos(self.radians) + random.uniform(-self.spread, self.spread),
+                        math.sin(self.radians) + random.uniform(-self.spread, self.spread)]
+
+        # spread
 
         vector = pygame.Vector2(self.heading[0], self.heading[1])
+        _, self.angle = vector.as_polar()
+        self.image = pygame.transform.rotate(self.frames[int(self.frame_index)], -self.angle)
 
-        _, angle = vector.as_polar()
+        # adjust spawn pos to the barrel
 
-        self.image = pygame.transform.rotate(self.frames[int(self.frame_index)], -angle)
-
-        # adj
-        self.adx, self.ady = math.cos(self.radians) * 70, math.sin(self.radians) * 70
-
+        self.adx, self.ady = math.cos(self.radians) * 50, math.sin(self.radians) * 50
         self.rect = self.image.get_rect(center=(player.rect.centerx + self.adx, player.rect.centery + self.ady))
 
-        self.outline_pos = self.rect.centerx, self.rect.centery
+        # calculated bullet pos
 
-        # float pos setup
         self.posx, self.posy = self.rect.centerx, self.rect.centery
 
-    def outline(self):
-        offs = (self.player.game.offset[0], self.player.game.offset[1])
+        # calculated bullet spawnpoint
 
-        pygame.draw.line(self.screen, (255, 55, 55), (self.outline_pos[0] + offs[0], self.outline_pos[1] + offs[1]), (self.posx + offs[0], self.posy + offs[1]), 3)
+        self.basePosX, self.basePosY = self.rect.centerx, self.rect.centery
+
+        Trail(self)
+
 
     def customDraw(self):
-        offs = (self.player.game.offset[0], self.player.game.offset[1])
 
+        # draw projectile
+
+        offs = (self.player.game.offset[0], self.player.game.offset[1])
         self.screen.blit(self.image, (self.rect.x + offs[0], self.rect.y + offs[1]))
 
-        self.outline()
+    def destroy(self):
+        self.kill()
 
     def update(self):
 

@@ -20,6 +20,7 @@ class Singleplayer:
         self.group_objects = pygame.sprite.Group()
         self.group_players = pygame.sprite.Group()
         self.group_projectiles = pygame.sprite.Group()
+        self.group_particles = pygame.sprite.Group()
 
         self.animation_player = game.animation
 
@@ -57,6 +58,12 @@ class Singleplayer:
         try:
             for projectile in self.group_projectiles:
                 projectile.customDraw()
+        except:
+            pass
+
+        try:
+            for particle in self.group_particles:
+                particle.customDraw()
         except:
             pass
 

@@ -2,12 +2,9 @@ import pygame
 from os import walk
 from settings import *
 import socket
+import time
 
-backToMenu = pygame.USEREVENT + 1
-killServer = pygame.USEREVENT + 2
-clientDisconnect = pygame.USEREVENT + 3
-
-def import_folder(path):
+def import_folder(path) -> list:
 
     surface_list = []
 
@@ -18,3 +15,17 @@ def import_folder(path):
             surface_list.append(image_surf)
 
     return surface_list
+
+
+class Cooldown:
+    def __init__(self):
+        self.bTime = time.time()
+
+    def update(self):
+        self.nTime = time.time() - self.bTime
+
+    def clear(self):
+        self.bTime = time.time()
+
+    def get(self):
+        return self.nTime

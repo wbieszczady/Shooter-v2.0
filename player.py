@@ -5,6 +5,7 @@ from pygame import Vector2
 from projectile import Rocket, Bullet
 from settings import *
 from threading import Thread
+from utilities import Cooldown
 import multiprocessing
 import ctypes
 import keyboard
@@ -18,6 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.screen = pygame.display.get_surface()
 
         self.group_projectiles = game.group_projectiles
+        self.group_particles = game.group_particles
 
         self.isColliding = False
         self.isMovingForward = False
@@ -65,18 +67,6 @@ class Player(pygame.sprite.Sprite):
         proHandler.start()
 
         self.input = Input()
-
-    def projectileHandler(self):
-
-        while self.alive():
-
-            for bullet in self.group_projectiles:
-                try:
-                    bullet.update()
-                except:
-                    pass
-
-            time.sleep(0.01)
 
     def rotateHead(self):
 
@@ -245,6 +235,18 @@ class Player(pygame.sprite.Sprite):
                 self.shootRocket()
             self.input.shootSPACE.value = 0
 
+        # projectile handler
+
+        if not self.input.update.value == 0:
+            self.projectileHandler()
+            self.input.update.value = 0
+
+    def projectileHandler(self):
+        for bullet in self.group_projectiles:
+            try:
+                bullet.update()
+            except:
+                pass
 
     def update(self):
         self.inputHandler()
@@ -267,16 +269,23 @@ class Input:
         self.shootE = multiprocessing.Value('i', 0)
         self.shootSPACE = multiprocessing.Value('i', 0)
 
-        self.movementProcess = multiprocessing.Process(target=self.movement, args=(self.alive, self.forward, self.backward, self.rotateLeft, self.rotateRight, self.shootE, self.shootSPACE))
+        self.update = multiprocessing.Value('i', 0)
+
+        self.movementProcess = multiprocessing.Process(target=self.general, args=(self.alive, self.forward, self.backward, self.rotateLeft, self.rotateRight, self.shootE, self.shootSPACE, self.update))
         self.movementProcess.start()
 
-    def movement(self, alive, forward, backward, rotateL, rotateR, shootE, shootSPACE):
+    def general(self, alive, forward, backward, rotateL, rotateR, shootE, shootSPACE, update):
 
-        bTime = time.time()
+        self.cooldown1 = Cooldown()
+        self.cooldown2 = Cooldown()
+
+        self.cd1 = 2
+        self.cd2 = 0.05
 
         while alive.value == 1:
 
-            nTime = time.time() - bTime
+            self.cooldown1.update()
+            self.cooldown2.update()
 
             if keyboard.is_pressed('w'):
                 forward.value += 1
@@ -290,12 +299,15 @@ class Input:
             if keyboard.is_pressed('d'):
                 rotateR.value += 1
 
-            if keyboard.is_pressed('e'):
+            if keyboard.is_pressed('e') and self.cooldown2.get() > self.cd2:
                 shootE.value += 1
+                self.cooldown2.clear()
 
-            if keyboard.is_pressed('space') and nTime > 2:
+            if keyboard.is_pressed('space') and self.cooldown1.get() > self.cd1:
                 shootSPACE.value += 1
-                bTime = time.time()
+                self.cooldown1.clear()
+
+            update.value += 1
 
             time.sleep(0.01)
 
