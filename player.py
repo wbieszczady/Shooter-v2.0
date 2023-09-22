@@ -280,7 +280,7 @@ class Input:
         self.cooldown2 = Cooldown()
 
         self.cd1 = 2
-        self.cd2 = 0.05
+        self.cd2 = 0.1
 
         while alive.value == 1:
 

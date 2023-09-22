@@ -94,9 +94,6 @@ class Bullet(pygame.sprite.Sprite):
 
         self.basePosX, self.basePosY = self.rect.centerx, self.rect.centery
 
-        Trail(self)
-
-
     def customDraw(self):
 
         # draw projectile
@@ -104,7 +101,12 @@ class Bullet(pygame.sprite.Sprite):
         offs = (self.player.game.offset[0], self.player.game.offset[1])
         self.screen.blit(self.image, (self.rect.x + offs[0], self.rect.y + offs[1]))
 
+        # spawn trail particle
+
+        Trail(self)
+
     def destroy(self):
+
         self.kill()
 
     def update(self):

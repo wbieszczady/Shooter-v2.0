@@ -9,7 +9,6 @@ import multiprocessing
 class Singleplayer:
     def __init__(self, game):
 
-        #TODO create player-centerd camera
         self.online = False
 
         # get the display surface
@@ -56,14 +55,14 @@ class Singleplayer:
         # drawing sprites
 
         try:
-            for projectile in self.group_projectiles:
-                projectile.customDraw()
+            for particle in self.group_particles:
+                particle.customDraw()
         except:
             pass
 
         try:
-            for particle in self.group_particles:
-                particle.customDraw()
+            for projectile in self.group_projectiles:
+                projectile.customDraw()
         except:
             pass
 

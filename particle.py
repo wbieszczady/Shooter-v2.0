@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 class Trail(pygame.sprite.Sprite):
 
@@ -17,22 +18,37 @@ class Trail(pygame.sprite.Sprite):
         self.animation_speed = 0.45
         self.frames = projectile.player.animation.animation_particle_trail()
 
+        self.opacity = 255
+
         # rect
 
-        self.image = pygame.transform.rotate(self.frames[int(self.frame_index)], -projectile.angle)
-        self.rect = self.image.get_rect(center=(projectile.player.rect.centerx + projectile.adx * 2, projectile.player.rect.centery + projectile.ady * 2))
+        self.image = pygame.transform.rotate(self.frames[int(self.frame_index)], -self.projectile.angle)
 
-        # scale
-
+        self.rect = self.image.get_rect(center=(projectile.rect.centerx, projectile.rect.centery))
 
 
     def customDraw(self):
+        self.decay()
+
         offs = (self.projectile.player.game.offset[0], self.projectile.player.game.offset[1])
-
-
 
         self.screen.blit(self.image, (self.rect.x + offs[0], self.rect.y + offs[1]))
 
-        self.screen.blit(self.image, (self.rect.x + offs[0] + self.projectile.heading[0] * 50, self.rect.y + offs[1] + self.projectile.heading[1] * 50))
+    def decay(self):
+        if self.opacity > 0:
+            self.opacity -= 1
+            self.image.set_alpha(self.opacity)
+        else:
+            self.kill()
+
+class BulletImpact(pygame.sprite.Sprite):
+
+    def __init__(self, projectile):
+        super().__init__(projectile.player.group_particles)
+
+        # general
+        self.screen = pygame.display.get_surface()
+
+        # rect
 
 
