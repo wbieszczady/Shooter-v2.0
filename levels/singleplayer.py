@@ -81,7 +81,7 @@ class Singleplayer:
             for object in self.group_objects:
                 try:
                     if pygame.sprite.collide_rect(bullet, object):
-                        bullet.kill()
+                        bullet.destroy()
                         object.destroy()
                         break
                         break

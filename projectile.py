@@ -1,7 +1,7 @@
 import math, time, pygame, random
 from animation import Animation
 from threading import Thread
-from particle import Trail
+from particle import Trail, BulletImpact
 
 class Rocket(pygame.sprite.Sprite):
     def __init__(self, player, speed):
@@ -106,6 +106,7 @@ class Bullet(pygame.sprite.Sprite):
         Trail(self)
 
     def destroy(self):
+        BulletImpact(self)
 
         self.kill()
 
