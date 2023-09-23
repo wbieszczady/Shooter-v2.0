@@ -55,12 +55,6 @@ class Singleplayer:
         # drawing sprites
 
         try:
-            for particle in self.group_particles:
-                particle.customDraw()
-        except:
-            pass
-
-        try:
             for projectile in self.group_projectiles:
                 projectile.customDraw()
         except:
@@ -68,6 +62,12 @@ class Singleplayer:
 
         self.group_players.update()
         self.group_objects.update()
+
+        try:
+            for particle in self.group_particles:
+                particle.customDraw()
+        except:
+            pass
 
         # collisions
 

@@ -1,7 +1,7 @@
 import math, time, pygame, random
 from animation import Animation
 from threading import Thread
-from particle import Trail, BulletImpact
+from particle import Trail, BulletImpact, RocketImpact
 
 class Rocket(pygame.sprite.Sprite):
     def __init__(self, player, speed):
@@ -32,6 +32,12 @@ class Rocket(pygame.sprite.Sprite):
 
         # float pos setup
         self.posx, self.posy = self.rect.x, self.rect.y
+
+    def destroy(self):
+
+        for _ in range(50):
+            RocketImpact(self)
+        self.kill()
 
     def outline(self):
         pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)

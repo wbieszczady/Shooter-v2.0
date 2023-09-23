@@ -13,6 +13,7 @@ class Animation:
             'move2': import_folder('assets/player/movement2'),
             'move3': import_folder('assets/player/movement3'),
             'rocket': import_folder('assets/player/projectiles/rocket'),
+            'rocket_impact': import_folder('assets/player/particles/rocket_impact'),
             'bullet': import_folder('assets/player/projectiles/bullet'),
             'bullet_impact': import_folder('assets/player/particles/bullet_impact'),
             'trail': import_folder('assets/player/particles/trail'),
@@ -36,4 +37,8 @@ class Animation:
 
     def animation_particle_bullet_impact(self) -> list:
         animation_frames = self.frame_list['bullet_impact']
+        return animation_frames
+
+    def animation_particle_rocket_impact(self) -> list:
+        animation_frames = self.frame_list['rocket_impact']
         return animation_frames
