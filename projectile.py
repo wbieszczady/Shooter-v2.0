@@ -112,7 +112,7 @@ class Bullet(pygame.sprite.Sprite):
         Trail(self)
 
     def destroy(self):
-        BulletImpact(self)
+        #BulletImpact(self)
 
         self.kill()
 
