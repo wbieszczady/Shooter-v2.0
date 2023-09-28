@@ -46,6 +46,10 @@ class Singleplayer:
             player.input.alive.value = 0
             player.kill()
 
+    def update(self):
+        self.group_projectiles.update()
+        self.group_particles.update()
+
     def run(self):
 
         # drawing background
@@ -69,11 +73,10 @@ class Singleplayer:
         except:
             pass
 
-        # collisions
-
         self.collision()
 
     def collision(self):
+
 
         #TODO something with this collisions is not right
 

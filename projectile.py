@@ -6,6 +6,8 @@ from particle import Trail, BulletImpact, RocketImpact, RocketTrail
 class Rocket(pygame.sprite.Sprite):
     def __init__(self, player, speed):
 
+        self.bTime = time.time()
+
         super().__init__(player.group_projectiles)
 
         self.screen = pygame.display.get_surface()
@@ -33,24 +35,23 @@ class Rocket(pygame.sprite.Sprite):
         # float pos setup
         self.posx, self.posy = self.rect.x, self.rect.y
 
+
     def destroy(self):
 
-        for _ in range(50):
+        for _ in range(100):
             RocketImpact(self)
         self.kill()
 
-    def outline(self):
-        pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)
+        print(time.time() - self.bTime)
 
     def customDraw(self):
-        RocketTrail(self)
-
 
         offs = (self.player.game.offset[0], self.player.game.offset[1])
 
         self.screen.blit(self.image, (self.rect.x + offs[0], self.rect.y + offs[1]))
 
     def update(self):
+
         vecx, vecy = self.heading[0] * self.speed, self.heading[1] * self.speed
 
         self.posx += round(vecx, 4)
@@ -58,6 +59,8 @@ class Rocket(pygame.sprite.Sprite):
 
         self.rect.x = self.posx
         self.rect.y = self.posy
+
+        RocketTrail(self)
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -110,19 +113,13 @@ class Bullet(pygame.sprite.Sprite):
         offs = (self.player.game.offset[0], self.player.game.offset[1])
         self.screen.blit(self.image, (self.rect.x + offs[0], self.rect.y + offs[1]))
 
-        # spawn trail particle
-
-        Trail(self)
-
     def destroy(self):
         #BulletImpact(self)
-
         self.kill()
 
 
 
     def update(self):
-
         vecx, vecy = self.heading[0] * self.speed, self.heading[1] * self.speed
 
         self.posx += round(vecx, 4)
@@ -130,3 +127,7 @@ class Bullet(pygame.sprite.Sprite):
 
         self.rect.centerx = self.posx
         self.rect.centery = self.posy
+
+        # spawn trail projectile
+
+        Trail(self)

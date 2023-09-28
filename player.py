@@ -63,9 +63,6 @@ class Player(pygame.sprite.Sprite):
 
         #listeners
 
-        proHandler = Thread(target=self.projectileHandler, daemon=True)
-        proHandler.start()
-
         self.input = Input()
 
     def rotateHead(self):
@@ -194,59 +191,59 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.image, (self.rect.topleft[0] + offset[0], self.rect.topleft[1] + offset[1]))
         self.screen.blit(self.pr, (self.rectHead.x + offset[0], self.rectHead.y + offset[1]))
 
-    def inputHandler(self):
+    def inputMovement(self):
 
-        if not self.input.forward.value == 0:
-
+        if self.input.forward.value:
             for _ in range(self.input.forward.value):
                 self.moveForward()
             self.input.forward.value = 0
 
-
-        if not self.input.backward.value == 0:
-
+        if self.input.backward.value:
             for _ in range(self.input.backward.value):
                 self.moveBackward()
             self.input.backward.value = 0
 
-
-        if not self.input.rotateLeft.value == 0:
-
+    def inputRotate(self):
+        if self.input.rotateLeft.value:
             for _ in range(self.input.rotateLeft.value):
                 self.rotateBody('left')
             self.input.rotateLeft.value = 0
 
-
-        if not self.input.rotateRight.value == 0:
-
+        if self.input.rotateRight.value:
             for _ in range(self.input.rotateRight.value):
                 self.rotateBody('right')
             self.input.rotateRight.value = 0
 
-        if not self.input.shootE.value == 0:
+    def inputShoot(self):
+        if self.input.shootE.value:
 
             for _ in range(self.input.shootE.value):
                 self.shootBullet()
             self.input.shootE.value = 0
 
-        if not self.input.shootSPACE.value == 0:
+        if self.input.shootSPACE.value:
 
             for _ in range(self.input.shootSPACE.value):
                 self.shootRocket()
             self.input.shootSPACE.value = 0
 
-        # projectile handler
+
+
+    def inputHandler(self):
+        self.inputMovement()
+        self.inputRotate()
+        self.inputShoot()
+
+        # objects update handler
 
         if not self.input.update.value == 0:
-            self.projectileHandler()
+
+            for _ in range(self.input.update.value):
+                self.objectHandler()
             self.input.update.value = 0
 
-    def projectileHandler(self):
-        for bullet in self.group_projectiles:
-            try:
-                bullet.update()
-            except:
-                pass
+    def objectHandler(self):
+        self.game.update()
 
     def update(self):
         self.inputHandler()
@@ -284,6 +281,8 @@ class Input:
 
         while alive.value == 1:
 
+            self.bTime = time.time()
+
             self.cooldown1.update()
             self.cooldown2.update()
 
@@ -310,7 +309,3 @@ class Input:
             update.value += 1
 
             time.sleep(0.01)
-
-
-
-
