@@ -1,7 +1,7 @@
 import math, time, pygame, random
 from animation import Animation
 from threading import Thread
-from particle import Trail, BulletImpact, RocketImpact
+from particle import Trail, BulletImpact, RocketImpact, RocketTrail
 
 class Rocket(pygame.sprite.Sprite):
     def __init__(self, player, speed):
@@ -43,6 +43,9 @@ class Rocket(pygame.sprite.Sprite):
         pygame.draw.rect(self.screen, (255, 255, 255), self.rect, 3, border_radius=1)
 
     def customDraw(self):
+        RocketTrail(self)
+
+
         offs = (self.player.game.offset[0], self.player.game.offset[1])
 
         self.screen.blit(self.image, (self.rect.x + offs[0], self.rect.y + offs[1]))
@@ -115,6 +118,8 @@ class Bullet(pygame.sprite.Sprite):
         #BulletImpact(self)
 
         self.kill()
+
+
 
     def update(self):
 

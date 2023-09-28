@@ -38,7 +38,48 @@ class Trail(pygame.sprite.Sprite):
         else:
             self.kill()
 
+class RocketTrail(pygame.sprite.Sprite):
 
+    def __init__(self, projectile):
+        super().__init__(projectile.player.group_particles)
+
+        # general
+        self.screen = pygame.display.get_surface()
+        self.projectile = projectile
+
+        # animation
+        self.frame_index = 0
+        self.animation_speed = 0.05
+        self.frames = projectile.player.animation.animation_particle_rocket_trail()
+
+        # rect
+        self.image = self.frames[int(self.frame_index)]
+        self.image = pygame.transform.scale(self.image, (64, 64))
+        self.rect = self.image.get_rect(center=(projectile.rect.centerx, projectile.rect.centery))
+
+        # base pos
+        self.posX = self.rect.centerx
+        self.posY = self.rect.centery
+
+        self.velX = random.uniform(-2.0, 2.0)
+        self.velY = random.uniform(-2.0, 2.0)
+
+        self.scale = 32
+    def customDraw(self):
+        if self.scale == 0:
+            #self.kill()
+            pass
+        else:
+            self.image = pygame.transform.scale(self.image, (self.scale, self.scale))
+
+        self.posX += self.velX
+        self.posY += self.velX
+
+        self.rect.x = self.posX
+        self.rect.y = self.posY
+
+        offs = (self.projectile.player.game.offset[0], self.projectile.player.game.offset[1])
+        self.screen.blit(self.image, (self.rect.x + offs[0], self.rect.y + offs[1]))
 
 class BulletImpact(pygame.sprite.Sprite):
 
@@ -48,7 +89,6 @@ class BulletImpact(pygame.sprite.Sprite):
         # general
         self.screen = pygame.display.get_surface()
         self.projectile = projectile
-        self.angle = projectile.player.angleHead
 
         # animation
 
@@ -60,7 +100,6 @@ class BulletImpact(pygame.sprite.Sprite):
 
         self.image = self.frames[int(self.frame_index)]
         self.rect = self.image.get_rect(center=(projectile.rect.centerx, projectile.rect.centery))
-
 
     def customDraw(self):
         self.animate()
@@ -76,7 +115,6 @@ class BulletImpact(pygame.sprite.Sprite):
             self.kill()
         else:
             self.image = self.frames[int(self.frame_index)]
-
 class RocketImpact(pygame.sprite.Sprite):
 
     def __init__(self, projectile):
@@ -113,6 +151,7 @@ class RocketImpact(pygame.sprite.Sprite):
         self.scale -= 0.2
 
         self.image = pygame.transform.scale(self.image, (self.scale, self.scale))
+
 
     def customDraw(self):
 
